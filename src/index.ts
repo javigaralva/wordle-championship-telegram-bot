@@ -1,9 +1,13 @@
 import 'dotenv/config'
+import './lib/db'
+
 import TelegramBot from 'node-telegram-bot-api'
 
-import { getChampionshipResults, getPlayer, getPlayers, loadDB, resetChampionshipResults, setPlayerResult } from './repository'
-import { getScore } from './score'
+import { createOrUpdatePlayer, getPlayer, getPlayers, setPlayerResult } from './repository'
 import { getGameIdFromDate, getTodaysGameId } from './getTodaysGameId'
+import { getScore } from './score'
+import { IPlayer } from './models/Player'
+import { IPlayerResult, PlayerResultModel } from './models/Result'
 import { parseForwardResult } from './parser'
 
 const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN ?? ''
@@ -14,47 +18,6 @@ if( !telegramBotToken ) {
 }
 
 const bot = new TelegramBot( telegramBotToken, { polling: true } )
-
-function getDayOfTheWeek( date: Date = new Date() ) {
-    const day = date.getUTCDay()
-    return day === 0 ? 6 : day - 1
-}
-
-function getChampionshipGameIdsRangeFromDate( date: Date = new Date() ): [ number, number ] {
-    const dayOfTheWeek = getDayOfTheWeek( date )
-    const gameId = getGameIdFromDate( date )
-    return [ gameId - dayOfTheWeek, gameId + ( 6 - dayOfTheWeek ) ]
-}
-
-function getChampionshipRankingInRange( gameIdsRange: [ number, number ] ) {
-    return getPlayers()
-        .map( player => ({
-            player,
-            totalScore: getPlayerTotalScoreInRange( player.id, gameIdsRange )
-        }))
-        .filter( playerScore => playerScore.totalScore > 0 )
-        .sort( ( a, b ) => b.totalScore - a.totalScore )
-
-}
-
-function getPlayerTotalScoreInRange( playerId: number, gameIdsRange: [ number, number ] ) {
-    const championshipResults = getChampionshipResults()
-    let totalScore = 0
-    for( let gameId = gameIdsRange[ 0 ]; gameId <= gameIdsRange[ 1 ]; gameId++ ) {
-        const attempts = championshipResults[ gameId ]?.[ playerId ] ?? 0
-        totalScore += getScore( attempts )
-    }
-    return totalScore
-}
-
-function attemptsToString( attempts: number ) {
-    return attempts === 0 ? 'X' : attempts
-}
-
-( async () => {
-    await loadDB()
-} )()
-
 
 //
 // /start
@@ -85,95 +48,120 @@ bot.onText( WORDLE_RESULT_FORWARD_REGEX, async ( msg ) => {
         return sendMessage( id, 'No te he entendido. Debes de reenviar el texto con el resultado del wordle' )
     }
 
+    if( !parsedResult.isValid ) {
+        return sendMessage( id, 'Algo no cuadra. Por favor, envía el texto del resultado *sin modificar*.' )
+    }
+
     const { gameId, attempts } = parsedResult
     const todaysGameId = getTodaysGameId()
     if( gameId !== todaysGameId ) {
         return sendMessage( id, `Has enviado el resultado para el round #${gameId}, pero el actual es el round #${todaysGameId}` )
     }
 
-    const player = {
+    const player: IPlayer = {
         id,
         username,
         name: name ?? 'John Doe',
     }
 
-    const playerResult: PlayerResult = {
-        player,
-        gameId: gameId,
-        attempts: attempts,
+    const playerResult: IPlayerResult = {
+        playerId: player.id,
+        gameId,
+        attempts,
     }
+
+    await createOrUpdatePlayer( player )
     await setPlayerResult( playerResult )
 
     sendMessage( id, `${name}, tu resultado de ${attemptsToString( attempts )}/6 para el juego #${gameId} ha sido registrado` )
 
 } )
 
-bot.onText( /\/results/, async ( msg ) => {
-    const resultsByPlayer = getChampionshipResultsByPlayerIdToString( msg.chat.id )
+//
+// /resultados
+//
+bot.onText( /\/resultados/, async ( msg ) => {
+    const resultsByPlayer = await getChampionshipResultsByPlayerIdToString( msg.chat.id )
     sendMessage( msg.chat.id, resultsByPlayer )
 } )
 
-bot.onText( /\/ranking/, async ( msg ) => {
-    const ranking = getChampionshipResultsToString()
-    sendMessage( msg.chat.id, ranking )
+//
+// #ranking
+//
+bot.onText( /#ranking/, async ( msg ) => {
+    const championshipString = await getChampionshipToString()
+    sendMessage( msg.chat.id, championshipString )
 } )
 
-
-// ADMIN COMMANDS
-bot.onText( /START CHAMP/gm, async ( msg ) => {
-
-    sendMessage( msg.chat.id, 'Comenzando un nuevo campeonato...' )
-    await resetChampionshipResults()
-
-    const players = getPlayers()
-    sendMessage( msg.chat.id, `Informando a los usuarios (${players.length})...` )
-
-    players.forEach( ( { id, name } ) =>
-        sendMessage( id, `${name}, ¡comienza un nuevo campeonato! Para participar, vete enviándome los resultados desde la web de https://wordle.danielfrg.com/ cuando termines la partida.` )
-    )
-
+//
+// #send ranking
+//
+bot.onText( /#send ranking/, async ( msg ) => {
+    const championshipString = await getChampionshipToString()
+    const players: IPlayer[] = await getPlayers()
+    players.forEach( player => sendMessage( player.id , championshipString ) )
 } )
 
-bot.onText( /STOP CHAMP/gm, async ( msg ) => {
-
-    sendMessage( msg.chat.id, 'Finalizando campeonato...' )
-
-    const players = getPlayers()
-    sendMessage( msg.chat.id, `Informando a los usuarios (${players.length})...` )
-
-    const ranking = '' // getRankingString()
-    players.forEach( ( { id, name } ) =>
-        sendMessage( id, `${name}, ¡el campeonato ha finalizado!\nAquí tienes el ranking con los resultados\n\n${ranking}` )
-    )
-
-    sendMessage( msg.chat.id, 'Reseteando resultados...' )
-    await resetChampionshipResults()
-
-} )
 
 function sendMessage( id: number, text: string ) {
     bot.sendMessage( id, text, { parse_mode: 'Markdown' } )
 }
 
-function getChampionshipResultsToString() {
+function getDayOfTheWeek( date: Date = new Date() ) {
+    const day = date.getUTCDay()
+    return day === 0 ? 6 : day - 1
+}
+
+function getChampionshipGameIdsRangeFromDate( date: Date = new Date() ): [ number, number ] {
+    const dayOfTheWeek = getDayOfTheWeek( date )
+    const gameId = getGameIdFromDate( date )
+    return [ gameId - dayOfTheWeek, gameId + ( 6 - dayOfTheWeek ) ]
+}
+
+function attemptsToString( attempts: number ) {
+    return attempts === 0 ? 'X' : attempts
+}
+
+function getIconByPosition ( index: number ) {
+    if( index === 1 ) return '🥇'
+    if( index === 2 ) return '🥈'
+    if( index === 3 ) return '🥉'
+    return index
+}
+
+
+async function getChampionshipToString() {
     const gameIdsRange = getChampionshipGameIdsRangeFromDate()
-    const championshipResults = getChampionshipResults()
+    const championshipResults: IPlayerResult[] = await PlayerResultModel.find( {
+        gameId: {
+            $gte: gameIdsRange[ 0 ],
+            $lte: gameIdsRange[ 1 ]
+        }
+    } )
+    const players = await getPlayers()
+
+    const championshipResultsString = await getChampionshipResultsByGameToString( { gameIdsRange, championshipResults } )
+    const rankingString = await getChampionshipRankingToString( { championshipResults, players } )
+    return `${championshipResultsString}*RANKING*\n${rankingString}`
+}
+
+async function getChampionshipResultsByGameToString( { gameIdsRange, championshipResults }: { gameIdsRange: [ number, number ], championshipResults: IPlayerResult[] } ) {
 
     let text = ''
     for( let gameId = gameIdsRange[ 0 ]; gameId <= gameIdsRange[ 1 ]; gameId++ ) {
-        const gameResults = championshipResults[ gameId ]
-        if( !gameResults ) {
-            text += `Juego #${gameId} sin resultados\n\n`
+        const playerResults = championshipResults.filter( playerResult => playerResult.gameId === gameId )
+        if( !playerResults.length ) {
+            text += `*Juego #${gameId} sin resultados*\n\n`
             continue
         }
 
-        text += `Juego #${gameId}\n`
+        text += `*Juego #${gameId}*\n`
         const gameResultsByPlayer = []
-        for( const playerId in gameResults ) {
-            const player = getPlayer( Number( playerId ) )
+        for( const playerResult of playerResults ) {
+            const player = await getPlayer( playerResult.playerId )
             if( !player ) continue
 
-            const attempts = gameResults[ playerId ]
+            const attempts = playerResult.attempts
             if( attempts === undefined ) continue
 
             gameResultsByPlayer.push( {
@@ -187,32 +175,56 @@ function getChampionshipResultsToString() {
             .sort( ( a, b ) => b.score - a.score )
             .map( resultByPlayer => `  - ${resultByPlayer.player.name}: ${attemptsToString( resultByPlayer.attempts )}/6 (${resultByPlayer.score} puntos)` )
             .join( '\n' )
+
         text += '\n\n'
     }
 
     return text
 }
 
-function getChampionshipResultsByPlayerIdToString( playerId: number ) {
+async function getChampionshipResultsByPlayerIdToString( playerId: number ) {
     const gameIdsRange = getChampionshipGameIdsRangeFromDate()
-    const results = getResultsByPlayerIdInRange( playerId, gameIdsRange )
+    const results = await getResultsByPlayerIdInRange( playerId, gameIdsRange )
     const gameResultsToString = results
         .map( result => `#${result.gameId} - ${attemptsToString(result.attempts)}/6 (${result.score} puntos)` )
         .join( '\n' )
-    const totalScore = getPlayerTotalScoreInRange( playerId, gameIdsRange )
+    const totalScore = results.reduce( ( score, result ) => score + result.score, 0 )
     return `Tus resultados:\n${gameResultsToString}\n\n*Total: ${totalScore} puntos*`
 }
 
-function getResultsByPlayerIdInRange( playerId: number, gameIdsRange: [ number, number ] ) {
-    const championshipResults = getChampionshipResults()
+async function getResultsByPlayerIdInRange( playerId: number, gameIdsRange: [ number, number ] ) {
 
-    const results = []
-    for( let gameId = gameIdsRange[ 0 ]; gameId <= gameIdsRange[ 1 ]; gameId++ ) {
-        if( championshipResults[ gameId ] ) {
-            const attempts = championshipResults[ gameId ]?.[ playerId ] ?? 0
-            const score = getScore( attempts )
-            results.push( { gameId, attempts, score } )
+    const playerResults = await PlayerResultModel.find( {
+        playerId,
+        gameId: {
+            $gte: gameIdsRange[ 0 ],
+            $lte: gameIdsRange[ 1 ],
         }
-    }
-    return results
+    } )
+
+    return playerResults.map( result => ( {
+        gameId: result.gameId,
+        attempts: result.attempts,
+        score: getScore( result.attempts ),
+    } ) )
+
+}
+
+async function getChampionshipRankingToString( { championshipResults, players }: { championshipResults: IPlayerResult[], players: IPlayer[] } ) {
+
+    const playerScore = players
+        .map( ( player ) => {
+            const finalScore = championshipResults
+                .filter( result => result.playerId === player.id )
+                .reduce( ( score, gameResult ) => score + ( getScore( gameResult.attempts ) ), 0 )
+            return {
+                player,
+                finalScore
+            }
+        } )
+        .sort( ( a, b ) => b.finalScore - a.finalScore )
+
+    return playerScore
+        .map( ( { player, finalScore }, index ) => `${getIconByPosition( index + 1 )} -  ${player.name}: ${finalScore} puntos` )
+        .join( '\n' )
 }
