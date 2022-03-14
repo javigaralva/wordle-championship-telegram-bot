@@ -181,7 +181,7 @@ function getIconByPosition ( index: number ) {
     if( index === 1 ) return '🥇'
     if( index === 2 ) return '🥈'
     if( index === 3 ) return '🥉'
-    return `${index}.`
+    return `  ${index}. `
 }
 
 async function getChampionshipData() {
