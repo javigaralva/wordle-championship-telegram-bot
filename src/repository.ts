@@ -17,12 +17,12 @@ export async function setPlayerResult( playerResult: IPlayerResult ) {
 export async function createOrUpdatePlayer( player: IPlayer ) {
     let playerInDb = await getPlayer( player.id )
     if( !playerInDb ) {
-        await PlayerModel.create( player )
+        return await PlayerModel.create( player )
     }
     else {
         playerInDb.name = player.name
         playerInDb.username = player.username
-        await playerInDb.save()
+        return await playerInDb.save()
     }
 }
 
