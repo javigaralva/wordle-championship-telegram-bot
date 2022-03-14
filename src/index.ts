@@ -66,6 +66,7 @@ bot.onText( WORDLE_RESULT_FORWARD_REGEX, async ( msg ) => {
         id,
         username,
         name: name ?? 'John Doe',
+        avatar: getRandomAvatar()
     }
 
     const playerResult: IPlayerResult = {
@@ -81,6 +82,11 @@ bot.onText( WORDLE_RESULT_FORWARD_REGEX, async ( msg ) => {
     sendMessage( id, `✅ *${getNameWithAvatar( playerSaved )}*, tu resultado de *${attemptsToString( attempts )}/6* para el juego *#${gameId}* ha sido registrado.\n*Has obtenido ${score} puntos*.` )
 
 } )
+
+function getRandomAvatar() {
+    const animalEmojis = [ "🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐻‍❄️", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🐵", "🙈", "🙉", "🙊", "🐔", "🐧", "🐦", "🐤", "🐥", "🐴", "🦄", "🐝", "🐛", "🦋", "🐞", "🪲", "🐢", "🐍", "🦖", "🦕", "🐙", "🦀", "🐡", "🐠", "🐟", "🐬", "🐳" ]
+    return animalEmojis[ Math.floor( Math.random() * animalEmojis.length ) ]
+}
 
 //
 // /resultados
