@@ -79,7 +79,8 @@ bot.onText( WORDLE_RESULT_FORWARD_REGEX, async ( msg ) => {
     await setPlayerResult( playerResult )
 
     const score = await getScore( attempts )
-    sendMessage( id, `✅ *${getNameWithAvatar( playerSaved )}*, tu resultado de *${attemptsToString( attempts )}/6* para el juego *#${gameId}* ha sido registrado.\n*Has obtenido ${score} puntos*.` )
+    const playerResults = await getChampionshipResultsByPlayerIdToString( player.id )
+    sendMessage( id, `✅ *${getNameWithAvatar( playerSaved )}*, tu resultado de *${attemptsToString( attempts )}/6* para el juego *#${gameId}* ha sido registrado.* Has obtenido ${score} puntos*.\n\n${playerResults}` )
 
 } )
 
