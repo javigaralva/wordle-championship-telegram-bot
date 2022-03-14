@@ -3,7 +3,8 @@ import { model, Schema } from 'mongoose'
 interface IPlayer {
     id: number,
     name: string,
-    username: string
+    username: string,
+    avatar?: string,
 }
 
 const PlayerSchema = new Schema( {
@@ -16,6 +17,9 @@ const PlayerSchema = new Schema( {
         type: String,
     },
     username: {
+        type: String,
+    },
+    avatar: {
         type: String,
     },
 } )
