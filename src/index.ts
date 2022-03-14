@@ -131,25 +131,32 @@ async function sendEndOfChampionshipMessage() {
 
         const playerPosition = championshipRanking.findIndex( playerFinalScore => playerFinalScore.player.id === player.id ) + 1
 
+        let animationId
         let playerPositionText
         if( playerPosition === 1 ) {
             playerPositionText = `*¡Enhorabuena, ${getNameWithAvatar( player )}!*\n¡Has ganado el campeonato 🏆🏆🏆🏆!`
+            animationId = 'CgACAgQAAxkBAAN3Yi-aTM223EN79z-Xx6u4eV2_VI8AAu8CAAJIdbxSwx3H1hHFIlAjBA'
         }
         else if( playerPosition === 2 ) {
             playerPositionText = `*¡Muy bien, ${getNameWithAvatar( player )}!*\n¡Has quedado en segunda posición en el campeonato!`
+            animationId = 'CgACAgQAAxkBAAN4Yi-aa03rNJtaNyoegn4q2ddOg3QAAkIDAALwWLxSLA4mnogLB5MjBA'
         }
         else if( playerPosition === 3 ) {
             playerPositionText = `*¡Bien jugado, ${getNameWithAvatar( player )}!*\n¡Has quedado en tercera posición en el campeonato!`
+            animationId = 'CgACAgQAAxkBAAN5Yi-ahiQqqhOH-F9oxUFz-ipMylIAAvcCAAI5nbVSDSq2qufqQjYjBA'
         }
         else if( playerPosition < numOfPlayers ) {
             playerPositionText = `*¡${getNameWithAvatar( player )}, el campeonato de esta semana ha terminado!*\n'Has quedado en posición ${playerPosition} de ${numOfPlayers} participantes.`
+            animationId = 'CgACAgQAAxkBAAN7Yi-arqyLVfbbQgABM7rahB0sTLUlAALrAgACgLW8UofegweUDiJdIwQ'
         }
         else {
             playerPositionText = `*¡${getNameWithAvatar( player )}, El campeonato de esta semana ha terminado!*\n'Has quedado último pero no tires la toalla. ¡Pronto empieza el siguiente campeonato!.`
+            animationId = 'CgACAgQAAxkBAAN6Yi-ancrNpgpKpHyrCN_cbczHui4AAiMDAAL_jLVSC0YNwQ4n7PEjBA'
         }
 
         const finalText = `${playerPositionText}\n\n${championshipString}\n\n¡Te esperamos en el próximo campeonato!`
         sendMessage( player.id, finalText )
+        bot.sendAnimation( player.id, animationId )
     } )
 }
 
