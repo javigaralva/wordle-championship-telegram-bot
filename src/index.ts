@@ -4,7 +4,7 @@ import './lib/db'
 import TelegramBot from 'node-telegram-bot-api'
 
 import { createOrUpdatePlayer, getPlayer, getPlayers, setPlayerResult } from './repository'
-import { getGameIdFromDate, getTodaysGameId } from './getTodaysGameId'
+import { getDayOfTheWeekFromGameId, getGameIdFromDate, getTodaysGameId } from './getTodaysGameId'
 import { getScore } from './score'
 import { IPlayer } from './models/Player'
 import { IPlayerResult, PlayerResultModel } from './models/Result'
@@ -199,21 +199,28 @@ async function getChampionshipData() {
 
     return {
         championshipRanking,
-        championshipString: `*RESULTADOS POR JUEGO*\n${championshipResultsByGameString}*RANKING*\n${championshipRankingString}`,
+        championshipString: `*RESULTADOS POR JUEGO 📋*\n${championshipResultsByGameString}*RANKING* 🏆\n${championshipRankingString}`,
     }
 }
 
 async function getChampionshipResultsByGameToString( { gameIdsRange, championshipResults }: { gameIdsRange: GameIdsRange, championshipResults: IPlayerResult[] } ) {
 
+    const currentGameId = getTodaysGameId()
+
     let text = ''
     for( let gameId = gameIdsRange[ 0 ]; gameId <= gameIdsRange[ 1 ]; gameId++ ) {
         const playerResults = championshipResults.filter( playerResult => playerResult.gameId === gameId )
+
+        if( gameId > currentGameId ) continue
+
+        const gameIdHeader = `*#${gameId}* (${getDayOfTheWeekFromGameId( gameId )})`
+
         if( !playerResults.length ) {
-            text += `*Juego #${gameId} 🚫 sin resultados*\n\n`
+            text += `${gameIdHeader}\n*  🚫 sin resultados*\n\n`
             continue
         }
 
-        text += `*Juego #${gameId}*\n`
+        text += `${gameIdHeader}\n`
         const gameResultsByPlayer = []
         for( const playerResult of playerResults ) {
             const player = await getPlayer( playerResult.playerId )
@@ -244,10 +251,10 @@ async function getChampionshipResultsByPlayerIdToString( playerId: number ) {
     const gameIdsRange = getChampionshipGameIdsRangeFromDate()
     const results = await getResultsByPlayerIdInRange( playerId, gameIdsRange )
     const gameResultsToString = results
-        .map( result => `*Juego #${result.gameId}* - ${attemptsToString(result.attempts)}/6 (${result.score} puntos)` )
+        .map( result => `*#${result.gameId}* (${getDayOfTheWeekFromGameId( result.gameId )}) - ${attemptsToString(result.attempts)}/6 (${result.score} puntos)` )
         .join( '\n' )
     const totalScore = results.reduce( ( score, result ) => score + result.score, 0 )
-    return `*📝 TUS RESULTADOS*:\n${gameResultsToString}\n\n*TOTAL: ${totalScore} puntos*`
+    return `*TUS RESULTADOS* 📝\n${gameResultsToString}\n\n*TOTAL: ${totalScore} puntos*`
 }
 
 async function getResultsByPlayerIdInRange( playerId: number, gameIdsRange: GameIdsRange ) {
