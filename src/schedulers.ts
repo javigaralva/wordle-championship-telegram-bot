@@ -14,8 +14,8 @@ export const scheduleReminderToPlay = makeDailyScheduler( {
 } )
 
 export const scheduleSendDailyReport = makeDailyScheduler( {
-    hour: 16,
-    minute: 51,
+    hour: 4,
+    minute: 30,
     name: 'Send daily report',
     handler: handleSendDailyReport
 } )
@@ -52,7 +52,8 @@ async function handleSendDailyReport() {
 
     // If all players have played, the report was already sent when last player played
     if( playersIdsThatDidNotPlayToday.length > 0 ) {
-        await sendReport( todaysGameId )
+        const silent = true
+        await sendReport( todaysGameId, silent )
     }
 
     // Schedule next daily report
