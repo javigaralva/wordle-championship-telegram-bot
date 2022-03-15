@@ -1,13 +1,17 @@
 import 'dotenv/config'
 import './lib/db'
 
-import { scheduleReminderToPlay, scheduleSendDailyReport } from './schedulers'
-import { getChampionshipData, getChampionshipResultsByPlayerIdToString } from './services/championship'
-import { onStartCommandHandler, onStartCommandRegex } from './commands/onStartCommand'
-import { onPlayerForwardResultCommandHandler, onPlayerForwardResultCommandRegex } from './commands/onPayerForwardResultCommand'
 import { onHelpCommandRegex, onHelpCommandHandler } from './commands/onHelpCommand'
+import { onPlayerForwardResultCommandHandler, onPlayerForwardResultCommandRegex } from './commands/onPayerForwardResultCommand'
 import { onResultsCommandsRegex, onResultsCommandsHandler } from './commands/onResultsCommand'
+import { onStartCommandHandler, onStartCommandRegex } from './commands/onStartCommand'
+import { onWinnerCommandRegex, onWinnerCommandHandler } from './commands/onWinnerCommand'
+
+import { scheduleReminderToPlay, scheduleSendDailyReport } from './schedulers'
+
+import { getChampionshipData, getChampionshipResultsByPlayerIdToString } from './services/championship'
 import { sendDailyReport, sendEndOfChampionshipMessage } from './services/senders'
+
 import { sendMessage } from './bot/sendMessage'
 import { bot } from './bot/bot'
 
@@ -37,9 +41,7 @@ bot.onText( onResultsCommandsRegex, onResultsCommandsHandler )
 //
 // /winner
 //
-bot.onText( /\/winner/, async ( msg ) => {
-    await bot.sendAnimation( msg.chat.id, 'CgACAgQAAxkBAAPmYjByt9Titm9cLONUiQQ1KZQa4nQAAgQDAAJ-iL1ShzYjDvOzE6YjBA' )
-} )
+bot.onText( onWinnerCommandRegex, onWinnerCommandHandler )
 
 //
 // /mis_resultados

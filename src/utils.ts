@@ -15,3 +15,7 @@ export function getDayOfTheWeek( date: Date = new Date() ) {
     const day = date.getUTCDay()
     return day === 0 ? 6 : day - 1
 }
+
+export function sleep( ms: number ) {
+    return new Promise( resolve => setTimeout( resolve, ms ) )
+}
