@@ -3,21 +3,21 @@ import { getChampionshipData } from './championship'
 import { bot } from "../bot/bot"
 import { sendMessage } from "../bot/sendMessage"
 
-export async function sendReport( todaysGameId: number ) {
+export async function sendReport( todaysGameId: number, silent = false ) {
     const isSunday = getDateFromGameId( todaysGameId ).getDay() === 0
     isSunday
-        ? await sendEndOfChampionshipMessage()
-        : await sendDailyReport()
+        ? await sendEndOfChampionshipMessage( silent )
+        : await sendDailyReport( silent )
 }
 
-export async function sendDailyReport() {
+export async function sendDailyReport( silent = false ) {
     const { championshipString, championshipPlayers } = await getChampionshipData()
     for( const player of championshipPlayers ) {
-        await sendMessage( player.id, championshipString )
+        await sendMessage( player.id, championshipString, silent )
     }
 }
 
-export async function sendEndOfChampionshipMessage() {
+export async function sendEndOfChampionshipMessage( silent = false ) {
     const { championshipRanking, championshipString, championshipPlayers } = await getChampionshipData()
 
     const numOfPlayers = championshipRanking.length
@@ -49,7 +49,7 @@ export async function sendEndOfChampionshipMessage() {
         }
 
         const finalText = `${playerPositionText}\n\n${championshipString}\n\n¡Te esperamos en el próximo campeonato!`
-        await sendMessage( player.id, finalText )
-        await bot.sendAnimation( player.id, animationId )
+        await sendMessage( player.id, finalText, silent )
+        await bot.sendAnimation( player.id, animationId, { disable_notification: silent } )
     }
 }
