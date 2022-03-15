@@ -1,3 +1,5 @@
+import { IPlayer } from '../models/Player'
+
 const WORDLE_START_DATE = new Date( '2022-01-06T06:00:00.000Z' )
 
 export function getTodaysGameId() {
@@ -39,4 +41,23 @@ export function getEmojiOfDayOfTheWeekFromGameId( gameId: number ) {
     if( day === 4 ) return '4️⃣'
     if( day === 5 ) return '5️⃣'
     if( day === 6 ) return '6️⃣'
+}
+
+export function getNextGameStartDate() {
+    return getDateFromGameId( getGameIdFromDate() + 1 )
+}
+
+export function getNameWithAvatar( player: IPlayer ) {
+    return `${player.avatar ? `${player.avatar} ` : ''}${player.name}`
+}
+
+export function attemptsToString( attempts: number ) {
+    return attempts === 0 ? 'X' : attempts
+}
+
+export function getIconByPosition( index: number ) {
+    if( index === 1 ) return '🥇'
+    if( index === 2 ) return '🥈'
+    if( index === 3 ) return '🥉'
+    return `  ${index}. `
 }
