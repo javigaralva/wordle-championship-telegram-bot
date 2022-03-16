@@ -1,6 +1,6 @@
 import { IPlayer } from '../models/Player'
 
-const WORDLE_START_DATE = new Date( '2022-01-06T04:00:00.000Z' )
+export const WORDLE_START_DATE = new Date( '2022-01-06T04:00:00.000Z' )
 
 export function getTodaysGameId() {
     return getGameIdFromDate()

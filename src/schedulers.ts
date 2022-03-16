@@ -1,5 +1,5 @@
 import { getPlayer } from './repository/repository'
-import { getTodaysGameId } from './services/gameUtilities'
+import { getTodaysGameId, WORDLE_START_DATE } from './services/gameUtilities'
 import { ALL_PLAYERS_IDS } from "./config/config"
 import { sendMessage } from "./bot/sendMessage"
 import { sendReport } from "./services/senders"
@@ -7,24 +7,24 @@ import { getChampionshipData } from './services/championship'
 import { difference } from './utils'
 
 export const scheduleReminderToPlay = makeDailyScheduler( {
-    hour: 22,
-    minute: 0,
+    hourUTC: 21,
+    minuteUTC: 0,
     name: 'Reminder to play',
     handler: handleReminderToPlay
 } )
 
 export const scheduleSendDailyReport = makeDailyScheduler( {
-    hour: 4,
-    minute: 30,
+    hourUTC: WORDLE_START_DATE.getUTCHours() - 1,
+    minuteUTC: 30,
     name: 'Send daily report',
     handler: handleSendDailyReport
 } )
 
-function makeDailyScheduler( { hour, minute, name, handler }: { hour: number, minute: number, name: string, handler: () => Promise<void> } ) {
+function makeDailyScheduler( { hourUTC, minuteUTC, name, handler }: { hourUTC: number, minuteUTC: number, name: string, handler: () => Promise<void> } ) {
     return () => {
         const now = Date.now()
         const date = new Date()
-        date.setHours( hour, minute, 0, 0 )
+        date.setUTCHours( hourUTC, minuteUTC, 0, 0 )
         let whenMs = date.getTime() - now
         whenMs = whenMs < 0 ? whenMs + 86400000 : whenMs
         console.log( `${new Date().toISOString()} >> Scheduling '${name}' in ${whenMs / 1000} seconds (at ${new Date( now + whenMs ).toISOString()})` )
