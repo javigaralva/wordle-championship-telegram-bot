@@ -1,11 +1,7 @@
 import 'dotenv/config'
 import './lib/db'
 
-import { onHelpCommandRegex, onHelpCommandHandler } from './commands/onHelpCommand'
-import { onPlayerForwardResultCommandHandler, onPlayerForwardResultCommandRegex } from './commands/onPayerForwardResultCommand'
-import { onResultsCommandsRegex, onResultsCommandsHandler } from './commands/onResultsCommand'
-import { onStartCommandHandler, onStartCommandRegex } from './commands/onStartCommand'
-import { onWinnerCommandRegex, onWinnerCommandHandler } from './commands/onWinnerCommand'
+import { Commands } from './commands'
 
 import { scheduleReminderToPlay, scheduleSendDailyReport } from './schedulers'
 
@@ -15,33 +11,14 @@ import { sendDailyReport, sendEndOfChampionshipMessage } from './services/sender
 import { sendMessage } from './bot/sendMessage'
 import { bot } from './bot/bot'
 
+// Schedule reminders and send daily reports
 scheduleReminderToPlay()
 scheduleSendDailyReport()
 
-//
-// /start
-//
-bot.onText( onStartCommandRegex, onStartCommandHandler )
-
-//
-// User forward a result
-//
-bot.onText( onPlayerForwardResultCommandRegex, onPlayerForwardResultCommandHandler )
-
-//
-// /ayuda
-//
-bot.onText( onHelpCommandRegex, onHelpCommandHandler)
-
-//
-// /resultados
-//
-bot.onText( onResultsCommandsRegex, onResultsCommandsHandler )
-
-//
-// /winner
-//
-bot.onText( onWinnerCommandRegex, onWinnerCommandHandler )
+// Register all bot commands
+for( const command of Object.values( Commands ) ) {
+    bot.onText( command.regex, command.handler )
+}
 
 //
 // /mis_resultados
