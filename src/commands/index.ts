@@ -1,9 +1,10 @@
-import { onDanceCommandHandler, onDanceCommandRegex } from './onDanceCommand'
 import { onHelpCommandRegex, onHelpCommandHandler } from './onHelpCommand'
 import { onPlayerForwardResultCommandHandler, onPlayerForwardResultCommandRegex } from './onPayerForwardResultCommand'
 import { onResultsCommandsRegex, onResultsCommandsHandler } from './onResultsCommand'
 import { onStartCommandHandler, onStartCommandRegex } from './onStartCommand'
-import { onWinnerCommandRegex, onWinnerCommandHandler } from './onWinnerCommand'
+
+import { onDanceCommandHandler, onDanceCommandRegex } from './easterEggs/onDanceCommand'
+import { onWinnerCommandRegex, onWinnerCommandHandler } from './easterEggs/onWinnerCommand'
 
 export const Commands = {
     Dance: {
