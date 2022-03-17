@@ -1,7 +1,7 @@
 import TelegramBot, { Message } from 'node-telegram-bot-api'
-import { bot } from '../bot/bot'
-import { sendMessage } from '../bot/sendMessage'
-import { sleep } from '../utils'
+import { bot } from '../../bot/bot'
+import { sendMessage } from '../../bot/sendMessage'
+import { sleep } from '../../utils'
 
 export const onDanceCommandRegex = /\/dance/
 

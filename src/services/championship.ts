@@ -3,7 +3,8 @@ import { IPlayer } from '../models/Player'
 import { attemptsToString, getDayOfTheWeekFromGameId, getGameIdFromDate, getIconByPosition, getNameWithAvatar, getTodaysGameId } from './gameUtilities'
 import * as Repository from '../repository/repository'
 import { getScore } from './score'
-import { getDayOfTheWeek } from '../utils'
+import { getDayOfTheWeek, intersection } from '../utils'
+import { ALL_PLAYERS_IDS } from '../config/config'
 
 type GameIdsRange = [ number, number ]
 type PlayerFinalScore = { player: IPlayer; finalScore: number; }
@@ -149,3 +150,9 @@ function getChampionshipGameIdsRangeFromDate( date: Date = new Date() ): GameIds
     return [ gameId - dayOfTheWeek, gameId + ( 6 - dayOfTheWeek ) ]
 }
 
+export async function haveAllPlayersPlayedThis( gameId: number ) {
+    const todayPlayerResults = await findPlayerResultsByGameId( gameId )
+    const todayPlayerIds = todayPlayerResults.map( result => result.playerId )
+    const allPlayersHavePlayed = intersection( ALL_PLAYERS_IDS, todayPlayerIds ).length === ALL_PLAYERS_IDS.length
+    return allPlayersHavePlayed
+}

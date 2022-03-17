@@ -1,12 +1,11 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { IPlayer } from '../models/Player'
 import { IPlayerResult } from '../models/Result'
-import { createOrUpdatePlayer, findPlayerResultsByGameId, getChampionshipResultsByPlayerIdToString, setPlayerResult } from '../services/championship'
+import { createOrUpdatePlayer, getChampionshipResultsByPlayerIdToString, haveAllPlayersPlayedThis, setPlayerResult } from '../services/championship'
 import { attemptsToString, getNameWithAvatar, getTodaysGameId } from '../services/gameUtilities'
 import { getScore } from '../services/score'
-import { getRandomAvatar, intersection } from '../utils'
+import { getRandomAvatar } from '../utils'
 import { sendMessage } from '../bot/sendMessage'
-import { ALL_PLAYERS_IDS } from '../config/config'
 import { sendReport } from '../services/senders'
 
 type ParsedResult = {
@@ -87,9 +86,7 @@ function getNumberOfAttempts( forwardedResult: string ): number {
 }
 
 async function sendReportIfAllPlayersHavePlayed( todaysGameId: number ) {
-    const todayPlayerResults = await findPlayerResultsByGameId( todaysGameId )
-    const todayPlayerIds = todayPlayerResults.map( result => result.playerId )
-    const allPlayersHavePlayed = intersection( ALL_PLAYERS_IDS, todayPlayerIds ).length === ALL_PLAYERS_IDS.length
+    const allPlayersHavePlayed = await haveAllPlayersPlayedThis( todaysGameId )
 
     if( !allPlayersHavePlayed ) return
 
