@@ -2,6 +2,7 @@ import { getDateFromGameId, getNameWithAvatar } from './gameUtilities'
 import { getChampionshipData } from './championship'
 import { bot } from "../bot/bot"
 import { sendMessage } from "../bot/sendMessage"
+import { ADMIN_ID } from '../config/config'
 
 export async function sendReport( todaysGameId: number, silent = false ) {
     const isSunday = getDateFromGameId( todaysGameId ).getDay() === 0
@@ -66,4 +67,8 @@ export async function sendEndOfChampionshipMessage( silent = false ) {
         await sendMessage( player.id, finalText, silent )
         await bot.sendAnimation( player.id, animationId, { disable_notification: silent } )
     }
+}
+
+export async function sendToAdmin( message: string ) {
+    ADMIN_ID && await sendMessage( ADMIN_ID, message )
 }

@@ -6,7 +6,7 @@ import { attemptsToString, getNameWithAvatar, getTodaysGameId } from '../service
 import { getScore } from '../services/score'
 import { getRandomAvatar } from '../utils'
 import { sendMessage } from '../bot/sendMessage'
-import { sendReport } from '../services/senders'
+import { sendReport, sendToAdmin } from '../services/senders'
 
 type ParsedResult = {
     gameId: number,
@@ -60,6 +60,7 @@ export async function onPlayerForwardResultCommandHandler( msg: TelegramBot.Mess
     const playerResults = await getChampionshipResultsByPlayerIdToString( player.id )
     await sendMessage( id, `✅ *${getNameWithAvatar( playerSaved )}*, tu resultado de *${attemptsToString( attempts )}/6* para el juego *#${gameId}* ha sido registrado.* Has obtenido ${score} puntos*.\n\n${playerResults}` )
 
+    await sendToAdmin( `✅ *${getNameWithAvatar( playerSaved )}*: *${attemptsToString( attempts )}/6* para el juego *#${gameId}* ha sido registrado.* Ha obtenido ${score} puntos*.` )
     setTimeout( async () => await sendReportIfAllPlayersHavePlayed( todaysGameId ), 5000 )
 }
 
