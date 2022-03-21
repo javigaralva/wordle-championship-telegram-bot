@@ -1,5 +1,5 @@
 import { onHelpCommandRegex, onHelpCommandHandler } from './onHelpCommand'
-import { onPlayerForwardResultCommandHandler, onPlayerForwardResultCommandRegex } from './onPayerForwardResultCommand'
+import { onPlayerForwardResultCommandHandler, onPlayerForwardResultCommandRegex } from './onPlayerForwardResultCommand'
 import { onResultsCommandsRegex, onResultsCommandsHandler } from './onResultsCommand'
 import { onStartCommandHandler, onStartCommandRegex } from './onStartCommand'
 
