@@ -156,3 +156,8 @@ export async function haveAllPlayersPlayedThis( gameId: number ) {
     const allPlayersHavePlayed = intersection( ALL_PLAYERS_IDS, todayPlayerIds ).length === ALL_PLAYERS_IDS.length
     return allPlayersHavePlayed
 }
+
+export async function havePlayerIdPlayedThis( gameId: number, playerId: number ) {
+    const playerResults = await findPlayerResultsByGameId( gameId )
+    return playerResults.some( result => result.playerId === playerId )
+}

@@ -1,12 +1,13 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { IPlayer } from '../models/Player'
 import { IPlayerResult } from '../models/Result'
-import { createOrUpdatePlayer, getChampionshipResultsByPlayerIdToString, haveAllPlayersPlayedThis, setPlayerResult } from '../services/championship'
+import { createOrUpdatePlayer, haveAllPlayersPlayedThis, havePlayerIdPlayedThis, setPlayerResult } from '../services/championship'
 import { attemptsToString, getNameWithAvatar, getTodaysGameId } from '../services/gameUtilities'
 import { getScore } from '../services/score'
 import { getRandomAvatar } from '../utils'
 import { sendMessage } from '../bot/sendMessage'
-import { sendReport, sendToAdmin } from '../services/senders'
+import { sendChampionshipReportTo, sendReport } from '../services/senders'
+import { ADMIN_ID } from '../config/config'
 
 type ParsedResult = {
     gameId: number,
@@ -57,11 +58,17 @@ export async function onPlayerForwardResultCommandHandler( msg: TelegramBot.Mess
     await setPlayerResult( playerResult )
 
     const score = await getScore( attempts )
-    const playerResults = await getChampionshipResultsByPlayerIdToString( player.id )
-    await sendMessage( id, `✅ *${getNameWithAvatar( playerSaved )}*, tu resultado de *${attemptsToString( attempts )}/6* para el juego *#${gameId}* ha sido registrado.* Has obtenido ${score} puntos*.\n\n${playerResults}` )
+    await sendMessage( id, `✅ *${getNameWithAvatar( playerSaved )}*, tu resultado de *${attemptsToString( attempts )}/6* para el juego *#${gameId}* ha sido registrado.* Has obtenido ${score} puntos*.` )
 
-    await sendToAdmin( `✅ *${getNameWithAvatar( playerSaved )}*: *${attemptsToString( attempts )}/6* para el juego *#${gameId}* ha sido registrado.* Ha obtenido ${score} puntos*.` )
-    setTimeout( async () => await sendReportIfAllPlayersHavePlayed( todaysGameId ), 5000 )
+    // Send info to the admin (if admin has played)
+    const haveAdminPlayed = await havePlayerIdPlayedThis( gameId, ADMIN_ID )
+    const hasToSendToAdmin = haveAdminPlayed && player.id !== ADMIN_ID
+    hasToSendToAdmin && await sendMessage( ADMIN_ID, `ℹ️ *${getNameWithAvatar( playerSaved )}*: *${attemptsToString( attempts )}/6* para el juego *#${gameId}* ha sido registrado.* Ha obtenido ${score} puntos*.` )
+
+    // Send Provisional Ranking to the player, or to all players (if they have played)
+    await haveAllPlayersPlayedThis( todaysGameId )
+        ? setTimeout( async () => await sendReport( todaysGameId ), 1500 )
+        : setTimeout( async () => await sendChampionshipReportTo( todaysGameId, player.id ), 1500 )
 }
 
 export function parseForwardResult( forwardedResult: string ): ParsedResult | undefined {
@@ -84,12 +91,4 @@ function getNumberOfAttempts( forwardedResult: string ): number {
         .filter( o => !o.includes( 'ordle' ) )
         .filter( Boolean )
         .length
-}
-
-async function sendReportIfAllPlayersHavePlayed( todaysGameId: number ) {
-    const allPlayersHavePlayed = await haveAllPlayersPlayedThis( todaysGameId )
-
-    if( !allPlayersHavePlayed ) return
-
-    await sendReport( todaysGameId )
 }
