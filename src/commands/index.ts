@@ -1,3 +1,5 @@
+import TelegramBot from 'node-telegram-bot-api'
+
 import { onHelpCommandRegex, onHelpCommandHandler } from './onHelpCommand'
 import { onPlayerForwardResultCommandHandler, onPlayerForwardResultCommandRegex } from './onPlayerForwardResultCommand'
 import { onResultsCommandsRegex, onResultsCommandsHandler } from './onResultsCommand'
@@ -6,29 +8,42 @@ import { onStartCommandHandler, onStartCommandRegex } from './onStartCommand'
 import { onDanceCommandHandler, onDanceCommandRegex } from './easterEggs/onDanceCommand'
 import { onWinnerCommandRegex, onWinnerCommandHandler } from './easterEggs/onWinnerCommand'
 
+import { ALL_PLAYERS_IDS } from '../config/config'
+
+type CommandHandler = ( msg: TelegramBot.Message ) => Promise<TelegramBot.Message | undefined | void>
+
+const auth = ( handler: CommandHandler ) => async ( msg: TelegramBot.Message ) => {
+    const isAuthorized = ALL_PLAYERS_IDS.includes( msg.chat.id )
+    if( !isAuthorized ) {
+        return console.log( `Unauthorized user (${JSON.stringify( msg.chat )}) tried to execute command ${msg.text}` )
+    }
+
+    return handler( msg )
+}
+
 export const Commands = {
     Dance: {
-        handler: onDanceCommandHandler,
+        handler: auth( onDanceCommandHandler ),
         regex: onDanceCommandRegex
     },
     Help: {
-        handler: onHelpCommandHandler,
+        handler: auth( onHelpCommandHandler ),
         regex: onHelpCommandRegex
     },
     PlayerForwardResult: {
-        handler: onPlayerForwardResultCommandHandler,
+        handler: auth( onPlayerForwardResultCommandHandler ),
         regex: onPlayerForwardResultCommandRegex
     },
     Results: {
-        handler: onResultsCommandsHandler,
+        handler: auth( onResultsCommandsHandler ),
         regex: onResultsCommandsRegex
     },
     Start: {
-        handler: onStartCommandHandler,
+        handler: auth( onStartCommandHandler ),
         regex: onStartCommandRegex
     },
     Winner: {
-        handler: onWinnerCommandHandler,
+        handler: auth( onWinnerCommandHandler ),
         regex: onWinnerCommandRegex
     },
 }
