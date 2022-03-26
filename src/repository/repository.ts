@@ -5,6 +5,10 @@ export async function getPlayers() {
     return await PlayerModel.find()
 }
 
+export async function getPlayerResults() {
+    return await PlayerResultModel.find()
+}
+
 export async function getPlayer( id: number ) {
     return await PlayerModel.findOne( { id } )
 }
