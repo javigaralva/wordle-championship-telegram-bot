@@ -39,7 +39,7 @@ async function handleReminderToPlay() {
         const player = await getPlayer( playerIdsToRemind )
         if( !player )
             continue
-        await sendMessage( player.id, `*💔 ${player.name}, aún no has participado*.\n¡Ánimo y participa para no quedarte descolgado del campeonato!` )
+        await sendMessage( player.id, `*💔 ${player.name}, aún no has participado*.\n¡Ánimo y juega para no quedarte descolgado del campeonato!` )
     }
 
     // Schedule next reminder

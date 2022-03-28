@@ -1,5 +1,6 @@
 import { IPlayerResult } from '../models/Result'
 import { IPlayer } from '../models/Player'
+import { IWord } from '../models/Word'
 import { attemptsToString, getDayOfTheWeekFromGameId, getGameIdFromDate, getIconByPosition, getNameWithAvatar, getTodaysGameId } from './gameUtilities'
 import * as Repository from '../repository/repository'
 import { getScore } from './score'
@@ -25,12 +26,13 @@ export function setPlayerResult( playerResult: IPlayerResult ) {
 export async function getChampionshipData() {
     const championshipResults: IPlayerResult[] = await getChampionshipResults()
     const championshipPlayers = await getChampionshipPlayers( championshipResults )
+    const championshipWords = await getChampionshipWords()
 
-    const championshipResultsByGameString = await getChampionshipResultsByGameToString( { championshipResults } )
+    const championshipResultsByGameString = await getChampionshipResultsByGameToString( { championshipResults, championshipWords } )
     const championshipRanking = getChampionshipRanking( { championshipResults, championshipPlayers } )
     const championshipRankingString = getChampionshipRankingToString( championshipRanking )
 
-    const championshipString = `*RESULTADOS POR JUEGO 📋*\n${championshipResultsByGameString}*RANKING* 🏆\n${championshipRankingString}`
+    const championshipString = `*RESULTADOS POR JUEGO 📋*\n\n${championshipResultsByGameString}*RANKING* 🏆\n${championshipRankingString}`
 
     return {
         championshipPlayers,
@@ -47,45 +49,64 @@ export async function getChampionshipPlayers( championshipResults?: IPlayerResul
     return players
 }
 
+export async function getChampionshipWords() {
+    const gameIdsRange = getChampionshipGameIdsRangeFromDate()
+    const words = await Repository.findWordsInRange( gameIdsRange )
+    return words
+}
+
 export async function getChampionshipResults() {
     const gameIdsRange = getChampionshipGameIdsRangeFromDate()
     const championshipResults: IPlayerResult[] = await Repository.findPlayersResultsIn( gameIdsRange )
     return championshipResults
 }
 
-export async function getChampionshipResultsByGameToString( { championshipResults }: { championshipResults: IPlayerResult[] } ) {
+export async function getChampionshipResultsByGameToString( { championshipResults, championshipWords }: { championshipResults: IPlayerResult[], championshipWords: IWord[] } ) {
 
+    const players = await Repository.getPlayers()
     const gameIdsRange = getChampionshipGameIdsRangeFromDate()
     const currentGameId = getTodaysGameId()
 
     let text = ''
     for( let gameId = gameIdsRange[ 0 ]; gameId <= gameIdsRange[ 1 ]; gameId++ ) {
-        const playerResults = championshipResults.filter( playerResult => playerResult.gameId === gameId )
 
         if( gameId > currentGameId ) continue
 
-        const gameIdHeader = `*#${gameId}* (${getDayOfTheWeekFromGameId( gameId )})`
+        const playerResults = championshipResults.filter( playerResult => playerResult.gameId === gameId )
 
+        const word = championshipWords.find( word => word.gameId === gameId )
+        const gameWord = ( word?.word ?? '' ).toUpperCase()
+
+        const gameWordString = gameWord ? `- *${gameWord}*` : ''
+        const gameIdHeader = `*#${gameId}* (${getDayOfTheWeekFromGameId( gameId )}) ${gameWordString}`
         if( !playerResults.length ) {
             text += `${gameIdHeader}\n*  🚫 sin resultados*\n\n`
             continue
         }
 
-        text += `${gameIdHeader}\n`
+        let totalWordScore = 0
         const gameResultsByPlayer = []
         for( const playerResult of playerResults ) {
-            const player = await Repository.getPlayer( playerResult.playerId )
+            const player = players.find( player => player.id === playerResult.playerId )
             if( !player ) continue
 
             const attempts = playerResult.attempts
             if( attempts === undefined ) continue
 
+            const score = getScore( attempts )
+            totalWordScore += score
+
             gameResultsByPlayer.push( {
                 player,
                 attempts,
-                score: getScore( attempts ),
+                score,
             } )
         }
+
+        const avgWordScore = ( totalWordScore / gameResultsByPlayer.length ).toFixed( 2 )
+        const gameIdHeaderWithScore = `${gameIdHeader} (${avgWordScore} puntos)`
+
+        text += `${gameIdHeaderWithScore}\n`
 
         text += gameResultsByPlayer
             .sort( ( a, b ) => b.score - a.score )

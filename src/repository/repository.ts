@@ -1,8 +1,13 @@
 import { IPlayer, PlayerModel } from '../models/Player'
 import { IPlayerResult, PlayerResultModel } from '../models/Result'
+import { IWord, WordModel } from '../models/Word'
 
 export async function getPlayers() {
     return await PlayerModel.find()
+}
+
+export async function getPlayerResults() {
+    return await PlayerResultModel.find()
 }
 
 export async function getPlayer( id: number ) {
@@ -57,6 +62,30 @@ export async function findPlayerResultsByGameId( gameId: number ) {
 export async function findPlayerResultsByPlayerIdInRange( playerId: number, gameIdsRange: [ number, number ] ) {
     return await PlayerResultModel.find( {
         playerId,
+        gameId: {
+            $gte: gameIdsRange[ 0 ],
+            $lte: gameIdsRange[ 1 ],
+        }
+    } )
+}
+
+export async function createOrUpdateWord( word: IWord ) {
+    let wordInDb = await WordModel.findOne( { gameId: word.gameId } )
+    if( !wordInDb ) {
+        return await WordModel.create( word )
+    }
+    else {
+        wordInDb.word = word.word
+        await wordInDb.save()
+    }
+}
+
+export async function findWordByGameId( gameId: number ) {
+    return await WordModel.findOne( { gameId } )
+}
+
+export async function findWordsInRange( gameIdsRange: [ number, number ] ) {
+    return await WordModel.find( {
         gameId: {
             $gte: gameIdsRange[ 0 ],
             $lte: gameIdsRange[ 1 ],

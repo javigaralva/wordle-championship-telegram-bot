@@ -1,9 +1,10 @@
 import TelegramBot from 'node-telegram-bot-api'
 
 import { onHelpCommandRegex, onHelpCommandHandler } from './onHelpCommand'
+import { onWordCommandHandler, onWordCommandRegex } from './onWordCommand'
 import { onPlayerForwardResultCommandHandler, onPlayerForwardResultCommandRegex } from './onPlayerForwardResultCommand'
-import { onResultsCommandsRegex, onResultsCommandsHandler } from './onResultsCommand'
 import { onStartCommandHandler, onStartCommandRegex } from './onStartCommand'
+import { onResultsCommandsRegex, onResultsCommandsHandler } from './onResultsCommand'
 
 import { onDanceCommandHandler, onDanceCommandRegex } from './easterEggs/onDanceCommand'
 import { onWinnerCommandRegex, onWinnerCommandHandler } from './easterEggs/onWinnerCommand'
@@ -22,6 +23,10 @@ const auth = ( handler: CommandHandler ) => async ( msg: TelegramBot.Message ) =
 }
 
 export const Commands = {
+    Word: {
+        handler: auth( onWordCommandHandler ),
+        regex: onWordCommandRegex
+    },
     Dance: {
         handler: auth( onDanceCommandHandler ),
         regex: onDanceCommandRegex

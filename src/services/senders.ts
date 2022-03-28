@@ -53,13 +53,13 @@ export async function sendEndOfChampionshipMessage( silent = false ) {
         else if( playerPosition < numOfPlayers ) {
             playerPositionText =
                 `*¡${getNameWithAvatar( player )}, el campeonato de esta semana ha terminado!*\n` +
-                `'Has quedado en posición ${playerPosition} de ${numOfPlayers} participantes.`
+                `Has quedado en posición ${playerPosition} de ${numOfPlayers} participantes.`
             animationId = 'CAACAgIAAxkBAAIBFmIw6c_nKcGT6EO7MNme-e_UxDu2AALJAQACVp29CnXYcMSIGS6NIwQ'
         }
         else {
             playerPositionText =
-                `*¡${getNameWithAvatar( player )}, El campeonato de esta semana ha terminado!*\n` +
-                `'Has quedado último pero no tires la toalla. ¡Pronto empieza el siguiente campeonato!.`
+                `*¡${getNameWithAvatar( player )}, el campeonato de esta semana ha terminado!*\n` +
+                `Has quedado último pero no tires la toalla. ¡Pronto empieza el siguiente campeonato!.`
             animationId = 'CAACAgIAAxkBAAIBFWIw6PPwnPcOz4csXV7MtGBe3kMCAALQEgAC4LHISKl0c8gxj_boIwQ'
         }
 
