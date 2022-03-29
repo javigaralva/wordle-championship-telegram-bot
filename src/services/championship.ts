@@ -85,6 +85,7 @@ export async function getChampionshipResultsByGameToString( { championshipResult
         }
 
         let totalWordScore = 0
+        let totalAttempts = 0
         const gameResultsByPlayer = []
         for( const playerResult of playerResults ) {
             const player = players.find( player => player.id === playerResult.playerId )
@@ -94,6 +95,7 @@ export async function getChampionshipResultsByGameToString( { championshipResult
             if( attempts === undefined ) continue
 
             const score = getScore( attempts )
+            totalAttempts += attempts === 0 ? 7 : attempts
             totalWordScore += score
 
             gameResultsByPlayer.push( {
@@ -104,7 +106,8 @@ export async function getChampionshipResultsByGameToString( { championshipResult
         }
 
         const avgWordScore = ( totalWordScore / gameResultsByPlayer.length ).toFixed( 2 )
-        const gameIdHeaderWithScore = `${gameIdHeader} (${avgWordScore} puntos)`
+        const avgAttempts = ( totalAttempts / gameResultsByPlayer.length ).toFixed( 2 )
+        const gameIdHeaderWithScore = `${gameIdHeader} | *${avgAttempts}*/6  *·*  ${avgWordScore} puntos`
 
         text += `${gameIdHeaderWithScore}\n`
 
