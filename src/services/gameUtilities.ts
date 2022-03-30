@@ -55,9 +55,7 @@ export function attemptsToString( attempts: number ) {
     return attempts === 0 ? 'X' : attempts
 }
 
+const ICONS_BY_POSITION = [ , '🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟' ]
 export function getIconByPosition( index: number ) {
-    if( index === 1 ) return '🥇'
-    if( index === 2 ) return '🥈'
-    if( index === 3 ) return '🥉'
-    return `  ${index}. `
+    return ICONS_BY_POSITION[ index ] ?? `  ${index}. `
 }

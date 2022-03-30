@@ -1,29 +1,53 @@
 import { getDateFromGameId, getNameWithAvatar } from './gameUtilities'
-import { getChampionshipData } from './championship'
+import { ChampionshipData, getChampionshipData } from './championship'
 import { bot } from "../bot/bot"
 import { sendMessage } from "../bot/sendMessage"
+import { findWordByGameId } from '../repository/repository'
+import { getDefinitionsAndExamplesFor } from './wordDefinitions'
+import { sleep } from '../utils'
 
 export async function sendChampionshipReportTo( todaysGameId: number, playerId: number, silent = false ) {
     const { championshipString } = await getChampionshipData()
     await sendMessage( playerId, championshipString, silent )
 }
 
-export async function sendReport( todaysGameId: number, silent = false ) {
+export async function sendReport( todaysGameId: number, silent = false, championshipData?: ChampionshipData ) {
+    championshipData ??= await getChampionshipData()
+
+    await sendDefinitionsAndExamples( todaysGameId, silent, championshipData )
+    await sleep( 4000 )
+
     const isSunday = getDateFromGameId( todaysGameId ).getDay() === 0
     isSunday
-        ? await sendEndOfChampionshipMessage( silent )
-        : await sendDailyReport( silent )
+        ? await sendEndOfChampionshipMessage( silent, championshipData )
+        : await sendDailyReport( silent, championshipData )
 }
 
-export async function sendDailyReport( silent = false ) {
-    const { championshipString, championshipPlayers } = await getChampionshipData()
+export async function sendDailyReport( silent = false, championshipData?: ChampionshipData ) {
+    championshipData ??= await getChampionshipData()
+    const { championshipString, championshipPlayers } = championshipData
     for( const player of championshipPlayers ) {
         await sendMessage( player.id, championshipString, silent )
     }
 }
 
-export async function sendEndOfChampionshipMessage( silent = false ) {
-    const { championshipRanking, championshipString, championshipPlayers } = await getChampionshipData()
+export async function sendDefinitionsAndExamples( todaysGameId: number, silent = false, championshipData?: ChampionshipData ) {
+    championshipData ??= await getChampionshipData()
+    const { championshipPlayers } = championshipData
+    const todaysWord = await findWordByGameId( todaysGameId )
+    if( !todaysWord ) return
+
+    const text = await getDefinitionsAndExamplesFor( todaysWord.word )
+    if( !text ) return
+
+    for( const player of championshipPlayers ) {
+        await sendMessage( player.id, text, silent )
+    }
+}
+
+export async function sendEndOfChampionshipMessage( silent = false, championshipData?: ChampionshipData ) {
+    championshipData ??= await getChampionshipData()
+    const { championshipRanking, championshipString, championshipPlayers } = championshipData
 
     const numOfPlayers = championshipRanking.length
 
