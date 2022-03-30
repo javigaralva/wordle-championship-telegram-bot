@@ -67,8 +67,8 @@ export async function onPlayerForwardResultCommandHandler( msg: TelegramBot.Mess
 
     // Send Provisional Ranking to the player, or to all players (if they have played)
     await haveAllPlayersPlayedThis( todaysGameId )
-        ? setTimeout( async () => await sendReport( todaysGameId ), 1500 )
-        : setTimeout( async () => await sendChampionshipReportTo( todaysGameId, player.id ), 1500 )
+        ? await sendReport( todaysGameId )
+        : await sendChampionshipReportTo( todaysGameId, player.id )
 }
 
 export function parseForwardResult( forwardedResult: string ): ParsedResult | undefined {
