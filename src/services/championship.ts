@@ -10,6 +10,12 @@ import { ALL_PLAYERS_IDS } from '../config/config'
 type GameIdsRange = [ number, number ]
 type PlayerFinalScore = { player: IPlayer; finalScore: number; }
 type ChampionshipRanking = PlayerFinalScore[]
+export type ChampionshipData = {
+    championshipPlayers: IPlayer[];
+    championshipResults: IPlayerResult[];
+    championshipRanking: ChampionshipRanking;
+    championshipString: string;
+}
 
 export function createOrUpdatePlayer( player: IPlayer ) {
     return Repository.createOrUpdatePlayer( player )
@@ -23,7 +29,7 @@ export function setPlayerResult( playerResult: IPlayerResult ) {
     return Repository.setPlayerResult( playerResult )
 }
 
-export async function getChampionshipData() {
+export async function getChampionshipData(): Promise<ChampionshipData> {
     const championshipResults: IPlayerResult[] = await getChampionshipResults()
     const championshipPlayers = await getChampionshipPlayers( championshipResults )
     const championshipWords = await getChampionshipWords()
