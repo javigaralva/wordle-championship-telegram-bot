@@ -1,14 +1,16 @@
 import 'dotenv/config'
 import './lib/db'
 
-import { createOrUpdatePlayer, setPlayerResult, getPlayerResults, getPlayers } from './repository/repository'
+import { createOrUpdatePlayer, setPlayerResult, createOrUpdateWord } from './repository/repository'
 import fs from 'fs/promises'
 import { IPlayer } from './models/Player'
 import { IPlayerResult } from './models/Result'
+import { IWord } from './models/Word'
 
 type DbSchema = {
     players: IPlayer[]
-    championshipResults: IPlayerResult[]
+    championshipResults: IPlayerResult[],
+    words: IWord[]
 }
 
 ( async () => {
@@ -25,6 +27,10 @@ type DbSchema = {
 
     for( const playerResult of content.championshipResults ) {
         await setPlayerResult( playerResult )
+    }
+
+    for( const word of content.words ) {
+        await createOrUpdateWord( word )
     }
 
     console.log( '✅ DB backup restored' )

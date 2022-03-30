@@ -10,6 +10,10 @@ export async function getPlayerResults() {
     return await PlayerResultModel.find()
 }
 
+export async function getWords() {
+    return await WordModel.find()
+}
+
 export async function getPlayer( id: number ) {
     return await PlayerModel.findOne( { id } )
 }
