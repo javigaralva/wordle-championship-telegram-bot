@@ -55,14 +55,15 @@ bot.onText( /#send final ranking/, async ( msg ) => {
 // /def word
 //
 bot.onText( /\/def/, async ( msg ) => {
-    const word = msg?.text?.split( ' ' )[ 1 ]
-    if( !word ) return await sendMessage( msg.chat.id, 'ℹ️ No se ha especificado una palabra' )
+    const [ , ...searchList ] = msg?.text?.split( ' ' ) ?? []
+    const search = searchList.join( ' ' )
+    if( !search ) return await sendMessage( msg.chat.id, 'ℹ️ Por favor, introduce lo que quieras definir. Ejemplos:\n  */def pelota vasca*\n  */def mejunje*' )
 
-    const wordUpperCase = word.toUpperCase()
-    const message = await sendMessage( msg.chat.id, `Buscando *${wordUpperCase}*...` )
+    const searchUpperCase = search.toUpperCase()
+    const message = await sendMessage( msg.chat.id, `Buscando *${searchUpperCase}*...` )
 
-    let text = await getDefinitionsAndExamplesFor( word )
-    text = text || `😞 No hay datos sobre la palabra *${wordUpperCase}*`
+    let text = await getDefinitionsAndExamplesFor( search )
+    text = text || `☠️ No hay datos sobre *${searchUpperCase}*`
 
     await bot.editMessageText( text, { chat_id: msg.chat.id, message_id: message.message_id, parse_mode: 'Markdown' } )
 } )
