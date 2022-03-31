@@ -30,6 +30,5 @@ export async function getDefinitionsAndExamplesFor( word: string ) {
         examples
     ].filter( Boolean ).join( '\n' )
 
-    return text
+    return text.replace( /\[/g, '\\[' )
 }
-
