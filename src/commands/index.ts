@@ -1,10 +1,11 @@
 import TelegramBot from 'node-telegram-bot-api'
 
+import { onDefCommandHandler, onDefCommandRegex } from './onDefCommand'
 import { onHelpCommandRegex, onHelpCommandHandler } from './onHelpCommand'
-import { onWordCommandHandler, onWordCommandRegex } from './onWordCommand'
 import { onPlayerForwardResultCommandHandler, onPlayerForwardResultCommandRegex } from './onPlayerForwardResultCommand'
-import { onStartCommandHandler, onStartCommandRegex } from './onStartCommand'
 import { onResultsCommandsRegex, onResultsCommandsHandler } from './onResultsCommand'
+import { onStartCommandHandler, onStartCommandRegex } from './onStartCommand'
+import { onWordCommandHandler, onWordCommandRegex } from './onWordCommand'
 
 import { onDanceCommandHandler, onDanceCommandRegex } from './easterEggs/onDanceCommand'
 import { onWinnerCommandRegex, onWinnerCommandHandler } from './easterEggs/onWinnerCommand'
@@ -26,6 +27,10 @@ export const Commands = {
     Dance: {
         handler: auth( onDanceCommandHandler ),
         regex: onDanceCommandRegex
+    },
+    Def: {
+        handler: auth( onDefCommandHandler ),
+        regex: onDefCommandRegex
     },
     Help: {
         handler: auth( onHelpCommandHandler ),

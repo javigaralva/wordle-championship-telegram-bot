@@ -6,7 +6,6 @@ import { Commands } from './commands'
 import { scheduleReminderToPlay, scheduleSendDailyReport } from './schedulers'
 
 import { getChampionshipData, getChampionshipResultsByPlayerIdToString } from './services/championship'
-import { getDefinitionsAndExamplesFor } from './services/wordDefinitions'
 import { sendDailyReport, sendEndOfChampionshipMessage } from './services/senders'
 
 import { sendMessage } from './bot/sendMessage'
@@ -49,21 +48,4 @@ bot.onText( /#send ranking/, async ( msg ) => {
 //
 bot.onText( /#send final ranking/, async ( msg ) => {
     await sendEndOfChampionshipMessage()
-} )
-
-//
-// /def word
-//
-bot.onText( /\/def/, async ( msg ) => {
-    const [ , ...searchList ] = msg?.text?.split( ' ' ) ?? []
-    const search = searchList.join( ' ' )
-    if( !search ) return await sendMessage( msg.chat.id, 'ℹ️ Por favor, introduce lo que quieras definir. Ejemplos:\n  */def pelota vasca*\n  */def mejunje*' )
-
-    const searchUpperCase = search.toUpperCase()
-    const message = await sendMessage( msg.chat.id, `Buscando *${searchUpperCase}*...` )
-
-    let text = await getDefinitionsAndExamplesFor( search )
-    text = text || `☠️ No hay datos sobre *${searchUpperCase}*`
-
-    await bot.editMessageText( text, { chat_id: msg.chat.id, message_id: message.message_id, parse_mode: 'Markdown' } )
 } )
