@@ -23,10 +23,6 @@ const auth = ( handler: CommandHandler ) => async ( msg: TelegramBot.Message ) =
 }
 
 export const Commands = {
-    Word: {
-        handler: auth( onWordCommandHandler ),
-        regex: onWordCommandRegex
-    },
     Dance: {
         handler: auth( onDanceCommandHandler ),
         regex: onDanceCommandRegex
@@ -50,5 +46,9 @@ export const Commands = {
     Winner: {
         handler: auth( onWinnerCommandHandler ),
         regex: onWinnerCommandRegex
+    },
+    Word: {
+        handler: auth( onWordCommandHandler ),
+        regex: onWordCommandRegex
     },
 }
