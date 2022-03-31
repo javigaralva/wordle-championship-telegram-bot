@@ -3,7 +3,7 @@ import { ChampionshipData, getChampionshipData } from './championship'
 import { bot } from "../bot/bot"
 import { sendMessage } from "../bot/sendMessage"
 import { findWordByGameId } from '../repository/repository'
-import { getDefinitionsAndExamplesFor } from './wordDefinitions'
+import { getGoogleDefinitionsAndExamplesFor } from './googleDefinitions'
 import { sleep } from '../utils'
 
 export async function sendChampionshipReportTo( todaysGameId: number, playerId: number, silent = false ) {
@@ -37,7 +37,7 @@ export async function sendDefinitionsAndExamples( todaysGameId: number, silent =
     const todaysWord = await findWordByGameId( todaysGameId )
     if( !todaysWord ) return
 
-    const text = await getDefinitionsAndExamplesFor( todaysWord.word )
+    const text = await getGoogleDefinitionsAndExamplesFor( todaysWord.word )
     if( !text ) return
 
     for( const player of championshipPlayers ) {

@@ -22,6 +22,8 @@ export async function onHelpCommandHandler( msg: TelegramBot.Message ) {
         '  /start: Inicia el texto de bienvenida.\n' +
         '  /ayuda: Muestra esta ayuda.\n' +
         '  /resultados: Muestra los resultados del campeonato.\n' +
+        '  /def *concepto*: Muestra la definición de un concepto.\n' +
+        '  /rae *palabra*: Muestras las definiciones en la RAE sobre la palabra.\n' +
         '\n'
     )
 }

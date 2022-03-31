@@ -1,10 +1,12 @@
 import TelegramBot from 'node-telegram-bot-api'
 
+import { onDefCommandHandler, onDefCommandRegex } from './onDefCommand'
 import { onHelpCommandRegex, onHelpCommandHandler } from './onHelpCommand'
-import { onWordCommandHandler, onWordCommandRegex } from './onWordCommand'
 import { onPlayerForwardResultCommandHandler, onPlayerForwardResultCommandRegex } from './onPlayerForwardResultCommand'
-import { onStartCommandHandler, onStartCommandRegex } from './onStartCommand'
 import { onResultsCommandsRegex, onResultsCommandsHandler } from './onResultsCommand'
+import { onRaeCommandRegex, onRaeCommandHandler } from './onRaeCommand'
+import { onStartCommandHandler, onStartCommandRegex } from './onStartCommand'
+import { onWordCommandHandler, onWordCommandRegex } from './onWordCommand'
 
 import { onDanceCommandHandler, onDanceCommandRegex } from './easterEggs/onDanceCommand'
 import { onWinnerCommandRegex, onWinnerCommandHandler } from './easterEggs/onWinnerCommand'
@@ -23,13 +25,13 @@ const auth = ( handler: CommandHandler ) => async ( msg: TelegramBot.Message ) =
 }
 
 export const Commands = {
-    Word: {
-        handler: auth( onWordCommandHandler ),
-        regex: onWordCommandRegex
-    },
     Dance: {
         handler: auth( onDanceCommandHandler ),
         regex: onDanceCommandRegex
+    },
+    Def: {
+        handler: auth( onDefCommandHandler ),
+        regex: onDefCommandRegex
     },
     Help: {
         handler: auth( onHelpCommandHandler ),
@@ -38,6 +40,10 @@ export const Commands = {
     PlayerForwardResult: {
         handler: auth( onPlayerForwardResultCommandHandler ),
         regex: onPlayerForwardResultCommandRegex
+    },
+    Rae: {
+        handler: auth( onRaeCommandHandler ),
+        regex: onRaeCommandRegex
     },
     Results: {
         handler: auth( onResultsCommandsHandler ),
@@ -50,5 +56,9 @@ export const Commands = {
     Winner: {
         handler: auth( onWinnerCommandHandler ),
         regex: onWinnerCommandRegex
+    },
+    Word: {
+        handler: auth( onWordCommandHandler ),
+        regex: onWordCommandRegex
     },
 }
