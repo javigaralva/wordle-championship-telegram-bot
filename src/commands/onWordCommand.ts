@@ -3,7 +3,7 @@ import { sendMessage } from '../bot/sendMessage'
 import { addWord } from '../services/admin'
 import { getTodaysGameId } from '../services/gameUtilities'
 
-export const onWordCommandRegex = /#word ((?<gameId>\d+) (?<wordGameId>\w+)|(?<word>\w+))/gm
+export const onWordCommandRegex = /#word ((?<gameId>\d+) (?<wordGameId>[a-zñ]+)|(?<word>[a-zñ]+))/gm
 
 export async function onWordCommandHandler( msg: TelegramBot.Message ) {
     const match = msg.text?.matchAll( onWordCommandRegex )
@@ -15,5 +15,5 @@ export async function onWordCommandHandler( msg: TelegramBot.Message ) {
     const wordToSend = word ?? wordGameId
 
     await addWord( { gameId: gameIdToSend, word: wordToSend } )
-    await sendMessage( msg.chat.id, `🎉 La palabra *${wordToSend}* ha sido añadida al juego *#${gameIdToSend}*` )
+    await sendMessage( msg.chat.id, `🎉 La palabra *${wordToSend.toUpperCase()}* ha sido añadida al juego *#${gameIdToSend}*` )
 }
