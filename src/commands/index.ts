@@ -4,6 +4,7 @@ import { onDefCommandHandler, onDefCommandRegex } from './onDefCommand'
 import { onHelpCommandRegex, onHelpCommandHandler } from './onHelpCommand'
 import { onPlayerForwardResultCommandHandler, onPlayerForwardResultCommandRegex } from './onPlayerForwardResultCommand'
 import { onResultsCommandsRegex, onResultsCommandsHandler } from './onResultsCommand'
+import { onRaeCommandRegex, onRaeCommandHandler } from './onRaeCommand'
 import { onStartCommandHandler, onStartCommandRegex } from './onStartCommand'
 import { onWordCommandHandler, onWordCommandRegex } from './onWordCommand'
 
@@ -39,6 +40,10 @@ export const Commands = {
     PlayerForwardResult: {
         handler: auth( onPlayerForwardResultCommandHandler ),
         regex: onPlayerForwardResultCommandRegex
+    },
+    Rae: {
+        handler: auth( onRaeCommandHandler ),
+        regex: onRaeCommandRegex
     },
     Results: {
         handler: auth( onResultsCommandsHandler ),
