@@ -1,7 +1,7 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { bot } from '../bot/bot'
 import { sendMessage } from '../bot/sendMessage'
-import { getDefinitionsAndExamplesFor } from '../services/wordDefinitions'
+import { getGoogleDefinitionsAndExamplesFor } from '../services/googleDefinitions'
 
 export const onDefCommandRegex = /\/def/
 
@@ -13,8 +13,8 @@ export async function onDefCommandHandler( msg: TelegramBot.Message ) {
     const searchUpperCase = search.toUpperCase()
     const message = await sendMessage( msg.chat.id, `Buscando *${searchUpperCase}*...` )
 
-    let text = await getDefinitionsAndExamplesFor( search )
-    text = text || `☠️ No hay datos sobre *${searchUpperCase}*`
+    let text = await getGoogleDefinitionsAndExamplesFor( search )
+    text = text || `❌ *No hay datos sobre ${searchUpperCase}*`
 
     await bot.editMessageText( text, { chat_id: msg.chat.id, message_id: message.message_id, parse_mode: 'Markdown' } )
 
