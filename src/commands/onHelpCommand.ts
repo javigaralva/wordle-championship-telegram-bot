@@ -7,7 +7,7 @@ export async function onHelpCommandHandler( msg: TelegramBot.Message ) {
     await sendMessage( msg.chat.id,
         '*🏆 Wordle Championship 🏆*\n' +
         '🏁 Cada lunes comienza automáticamente un nuevo campeonato.\n' +
-        '📨 Para participar solo tienes que *reenviar al bot* el resultado desde la web de https://wordle.danielfrg.com/ cuando termines la partida.\n' +
+        '📨 Para participar solo tienes que *reenviar al bot* el resultado desde la web de https://wordle.danielfrg.com cuando termines la partida.\n' +
         '\n' +
         '*Puntuación 📋*\n' +
         '  *👉 Ronda 1*: 21 puntos\n' +
