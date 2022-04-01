@@ -7,7 +7,7 @@ export const onRaeCommandRegex = /\/rae/
 
 export async function onRaeCommandHandler( msg: TelegramBot.Message ) {
     const word = msg?.text?.split( ' ' )[ 1 ]
-    if( !word ) return await sendMessage( msg.chat.id, 'ℹ️ Por favor, introduce la palabra a buscar en la RAE. Ejemplos:\n  */rae tongo*\n  */def engañifa*' )
+    if( !word ) return await sendMessage( msg.chat.id, 'ℹ️ Por favor, introduce la palabra a buscar en la RAE. Ejemplos:\n  */rae tongo*\n  */rae engañifa*' )
 
     const searchUpperCase = word.toUpperCase()
     const message = await sendMessage( msg.chat.id, `Buscando en la RAE *${searchUpperCase}*...` )
