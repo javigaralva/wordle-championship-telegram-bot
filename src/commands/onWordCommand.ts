@@ -3,7 +3,7 @@ import { sendMessage } from '../bot/sendMessage'
 import { addWord } from '../services/admin'
 import { getTodaysGameId } from '../services/gameUtilities'
 
-export const onWordCommandRegex = /#word ((?<gameId>\d+) (?<wordGameId>[a-zñ]+)|(?<word>[a-zñ]+))/gm
+export const onWordCommandRegex = /#word ((?<gameId>\d+) (?<wordGameId>[a-zñáéíóú]+)|(?<word>[a-zñáéíóú]+))/gm
 
 export async function onWordCommandHandler( msg: TelegramBot.Message ) {
     const match = msg.text?.matchAll( onWordCommandRegex )

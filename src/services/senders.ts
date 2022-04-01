@@ -35,10 +35,10 @@ export async function sendDefinitionsAndExamples( todaysGameId: number, silent =
     championshipData ??= await getChampionshipData()
     const { championshipPlayers } = championshipData
     const todaysWord = await findWordByGameId( todaysGameId )
-    if( !todaysWord ) return
+    if( !todaysWord ) return console.warn( `No word found for gameId ${todaysGameId}` )
 
     const text = await getGoogleDefinitionsAndExamplesFor( todaysWord.word )
-    if( !text ) return
+    if( !text ) return console.warn( `No definitions found for word ${todaysWord.word}` )
 
     for( const player of championshipPlayers ) {
         await sendMessage( player.id, text, silent )

@@ -7,7 +7,7 @@ export function difference( array1: any[], array2: any[] ) {
 }
 
 export function getRandomAvatar() {
-    const animalEmojis = [ "🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐻‍❄️", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🐵", "🙈", "🙉", "🙊", "🐔", "🐧", "🐦", "🐤", "🐥", "🐴", "🦄", "🐝", "🐛", "🦋", "🐞", "🪲", "🐢", "🐍", "🦖", "🦕", "🐙", "🦀", "🐡", "🐠", "🐟", "🐬", "🐳" ]
+    const animalEmojis = [ "🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐻‍❄️", "🐨", "🐯", "🦁", "🐮", "🐸", "🐵", "🙈", "🙉", "🙊", "🐧", "🐦", "🐤", "🐴", "🦄", "🐝", "🐛", "🦋", "🐞", "🪲", "🐢", "🐍", "🦖", "🦕", "🐙", "🦀", "🐡", "🐠", "🐟", "🐳" ]
     return animalEmojis[ Math.floor( Math.random() * animalEmojis.length ) ]
 }
 
@@ -18,4 +18,8 @@ export function getDayOfTheWeek( date: Date = new Date() ) {
 
 export function sleep( ms: number ) {
     return new Promise( resolve => setTimeout( resolve, ms ) )
+}
+
+export function markdownEscape( text: string ) {
+    return text.replace( /([*[])/g, "\\$1" )
 }

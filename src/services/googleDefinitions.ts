@@ -1,3 +1,5 @@
+import { markdownEscape } from "../utils"
+
 const google = require( 'googlethis' )
 
 export async function getGoogleDefinitionsAndExamplesFor( word: string ) {
@@ -12,12 +14,12 @@ export async function getGoogleDefinitionsAndExamplesFor( word: string ) {
     } )
 
     const definitions = ( response?.dictionary?.definitions ?? [] )
-        .map( ( definition: string, i: number ) => `   ${i % 2 ? '🔶' : '🔷'} ${definition}` )
+        .map( ( definition: string, i: number ) => `   ${i % 2 ? '🔶' : '🔷'} ${markdownEscape( definition )}` )
         .flat()
         .join( '\n' )
 
     const examples = ( response?.dictionary?.examples ?? [] )
-        .map( ( example: string, i: number ) => `   🗣 ${example}` )
+        .map( ( example: string, i: number ) => `   🗣 ${markdownEscape( example )}` )
         .flat()
         .join( '\n' )
 
@@ -30,5 +32,5 @@ export async function getGoogleDefinitionsAndExamplesFor( word: string ) {
         examples
     ].filter( Boolean ).join( '\n' )
 
-    return text.replace( /\[/g, '\\[' )
+    return text
 }
