@@ -19,3 +19,7 @@ export function getDayOfTheWeek( date: Date = new Date() ) {
 export function sleep( ms: number ) {
     return new Promise( resolve => setTimeout( resolve, ms ) )
 }
+
+export function markdownEscape( text: string ) {
+    return text.replace( /([*[])/g, "\\$1" )
+}
