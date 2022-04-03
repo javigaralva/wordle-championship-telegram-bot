@@ -5,7 +5,7 @@ import { getRaeDefinitions } from '../services/raeDefinitions'
 
 // Examples:
 // /rae tongo <=> /r_tongo
-export const onRaeCommandRegex = /\/(rae\s+|r_)(?<search>.+)/gm
+export const onRaeCommandRegex = /^\/(rae\s+|r_)(?<search>.+)/gm
 
 export async function onRaeCommandHandler( msg: TelegramBot.Message ) {
     const match = msg.text?.matchAll( onRaeCommandRegex )

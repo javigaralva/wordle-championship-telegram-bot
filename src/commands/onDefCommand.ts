@@ -6,7 +6,7 @@ import { getGoogleDefinitionsAndExamplesFor } from '../services/googleDefinition
 // Examples:
 // /def tongo <=> /d_tongo
 // /def pelota vasca <=> /d_pelota_vasca
-export const onDefCommandRegex = /\/(def\s+|d_)(?<search>.+)/gm
+export const onDefCommandRegex = /^\/(def\s+|d_)(?<search>.+)/gm
 
 export async function onDefCommandHandler( msg: TelegramBot.Message ) {
     const match = msg.text?.matchAll( onDefCommandRegex )
