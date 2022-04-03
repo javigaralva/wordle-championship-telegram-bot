@@ -1,4 +1,4 @@
-import { markdownEscape } from "../utils"
+import { markdownEscape } from '../utils'
 
 const google = require( 'googlethis' )
 

@@ -10,6 +10,7 @@ import { sendDailyReport, sendEndOfChampionshipMessage } from './services/sender
 
 import { sendMessage } from './bot/sendMessage'
 import { bot } from './bot/bot'
+import { ADMIN_ID } from './config/config'
 
 // Schedule reminders and send daily reports
 scheduleReminderToPlay()
@@ -32,6 +33,7 @@ bot.onText( /\/mis_resultados/, async ( msg ) => {
 // #ranking
 //
 bot.onText( /#ranking/, async ( msg ) => {
+    if( ADMIN_ID !== msg.chat.id ) return
     const { championshipString } = await getChampionshipData()
     await sendMessage( msg.chat.id, championshipString )
 } )

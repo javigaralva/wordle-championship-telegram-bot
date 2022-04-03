@@ -1,7 +1,7 @@
 import { getDateFromGameId, getNameWithAvatar } from './gameUtilities'
 import { ChampionshipData, getChampionshipData } from './championship'
-import { bot } from "../bot/bot"
-import { sendMessage } from "../bot/sendMessage"
+import { bot } from '../bot/bot'
+import { sendMessage } from '../bot/sendMessage'
 import { findWordByGameId } from '../repository/repository'
 import { getGoogleDefinitionsAndExamplesFor } from './googleDefinitions'
 import { sleep } from '../utils'

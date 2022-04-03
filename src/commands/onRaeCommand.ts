@@ -1,7 +1,8 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { bot } from '../bot/bot'
-import { sendMessage } from "../bot/sendMessage"
+import { sendMessage } from '../bot/sendMessage'
 import { getRaeDefinitions } from '../services/raeDefinitions'
+import { decodeText } from '../utils'
 
 // Examples:
 // /rae tongo <=> /r_tongo
@@ -13,7 +14,8 @@ export async function onRaeCommandHandler( msg: TelegramBot.Message ) {
 
     const { groups: { search } } = match.next().value
 
-    const word = search.split( ' ' )[ 0 ]
+    const preProcessedWord = search.split( ' ' )[ 0 ]
+    const word = msg.text?.startsWith( '/r_') ? decodeText( preProcessedWord ) : preProcessedWord
     if( !word ) return await sendMessage( msg.chat.id, 'ℹ️ Por favor, introduce la palabra a buscar en la RAE. Ejemplos:\n  */rae tongo*\n  */rae engañifa*' )
 
     const searchUpperCase = word.toUpperCase()
