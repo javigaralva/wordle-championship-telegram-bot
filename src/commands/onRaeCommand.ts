@@ -1,6 +1,6 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { bot } from '../bot/bot'
-import { sendMessage } from "../bot/sendMessage"
+import { sendMessage } from '../bot/sendMessage'
 import { getRaeDefinitions } from '../services/raeDefinitions'
 import { decodeText } from '../utils'
 

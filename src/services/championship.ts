@@ -8,13 +8,16 @@ import { encodeText, intersection } from '../utils'
 import { ALL_PLAYERS_IDS } from '../config/config'
 
 type GameIdsRange = [ number, number ]
-type PlayerFinalScore = { player: IPlayer; finalScore: number; }
+type PlayerFinalScore = {
+    player: IPlayer,
+    finalScore: number
+}
 type ChampionshipRanking = PlayerFinalScore[]
 export type ChampionshipData = {
-    championshipPlayers: IPlayer[];
-    championshipResults: IPlayerResult[];
-    championshipRanking: ChampionshipRanking;
-    championshipString: string;
+    championshipPlayers: IPlayer[]
+    championshipResults: IPlayerResult[]
+    championshipRanking: ChampionshipRanking
+    championshipString: string
 }
 
 export function createOrUpdatePlayer( player: IPlayer ) {

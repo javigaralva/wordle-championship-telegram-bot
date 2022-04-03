@@ -1,8 +1,8 @@
 import { getPlayer } from './repository/repository'
 import { getTodaysGameId, WORDLE_START_DATE } from './services/gameUtilities'
-import { ALL_PLAYERS_IDS } from "./config/config"
-import { sendMessage } from "./bot/sendMessage"
-import { sendReport } from "./services/senders"
+import { ALL_PLAYERS_IDS } from './config/config'
+import { sendMessage } from './bot/sendMessage'
+import { sendReport } from './services/senders'
 import { getChampionshipData } from './services/championship'
 import { difference } from './utils'
 
