@@ -25,7 +25,7 @@ export async function getGoogleDefinitionsAndExamplesFor( word: string ) {
 
     const wordUpperCase = word.toUpperCase()
     const text = [
-        definitions && `📚 Definición de *${wordUpperCase}*`,
+        definitions && `✍️ Definición de *${wordUpperCase}*`,
         definitions,
         definitions && ' ',
         examples && `💬 Ejemplos de *${wordUpperCase}*`,

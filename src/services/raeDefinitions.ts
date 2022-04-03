@@ -3,6 +3,7 @@ import { markdownEscape } from '../utils'
 const raejs = require( '@jodacame/raejs' )
 
 const BULLETS_ICONS = [ '🟢', '🔵', '🟣', '🔴', '🟠', '🟡' ]
+const DEFINITION_ICONS = [ '📘', '📙', '📗', '📕' ]
 
 export async function getRaeDefinitions( word: string ) {
 
@@ -13,7 +14,7 @@ export async function getRaeDefinitions( word: string ) {
 
     const text = he.decode( response.results.map( ( result: any, i: number ) =>
         [
-            `👉 *${markdownEscape( result.header )}* ${result.source ? `(${markdownEscape( result.source )})` : ''}`,
+            `👉 ${DEFINITION_ICONS[ i % DEFINITION_ICONS.length ]} *${markdownEscape( result.header )}* ${result.source ? `(${markdownEscape( result.source )})` : ''}`,
             ...result.definition.map( ( def: string, i: number ) =>
                 `  ${BULLETS_ICONS[ i % BULLETS_ICONS.length ]}  ${markdownEscape( def )}`
             ),
