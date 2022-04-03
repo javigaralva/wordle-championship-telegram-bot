@@ -16,6 +16,7 @@ type ChampionshipRanking = PlayerFinalScore[]
 export type ChampionshipData = {
     championshipPlayers: IPlayer[]
     championshipResults: IPlayerResult[]
+    championshipWords: IWord[]
     championshipRanking: ChampionshipRanking
     championshipString: string
 }
@@ -46,6 +47,7 @@ export async function getChampionshipData(): Promise<ChampionshipData> {
     return {
         championshipPlayers,
         championshipResults,
+        championshipWords,
         championshipRanking,
         championshipString,
     }
