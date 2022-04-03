@@ -28,7 +28,7 @@ export async function getGoogleDefinitionsAndExamplesFor( word: string ) {
         definitions && `📚 Definición de *${wordUpperCase}*`,
         definitions,
         definitions && ' ',
-        examples && `📚 Ejemplos de *${wordUpperCase}*`,
+        examples && `💬 Ejemplos de *${wordUpperCase}*`,
         examples
     ].filter( Boolean ).join( '\n' )
 
