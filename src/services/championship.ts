@@ -1,10 +1,10 @@
 import { IPlayerResult } from '../models/Result'
 import { IPlayer } from '../models/Player'
 import { IWord } from '../models/Word'
-import { attemptsToString, getDayOfTheWeekFromGameId, getGameIdFromDate, getIconByPosition, getNameWithAvatar, getTodaysGameId } from './gameUtilities'
+import { attemptsToString, getDayOfTheWeek, getDayOfTheWeekFromGameId, getGameIdFromDate, getIconByPosition, getNameWithAvatar, getTodaysGameId } from './gameUtilities'
 import * as Repository from '../repository/repository'
 import { getScore } from './score'
-import { getDayOfTheWeek, intersection } from '../utils'
+import { intersection } from '../utils'
 import { ALL_PLAYERS_IDS } from '../config/config'
 
 type GameIdsRange = [ number, number ]
@@ -81,9 +81,9 @@ export async function getChampionshipResultsByGameToString( { championshipResult
         const playerResults = championshipResults.filter( playerResult => playerResult.gameId === gameId )
 
         const word = championshipWords.find( word => word.gameId === gameId )
-        const gameWord = ( word?.word ?? '' ).toUpperCase()
+        const gameWord = ( word?.word ?? '' )
 
-        const gameWordString = gameWord ? `- *${gameWord}*` : ''
+        const gameWordString = gameWord ? `- *${gameWord.toUpperCase()}*` : ''
         const gameIdHeader = `*#${gameId}* (${getDayOfTheWeekFromGameId( gameId )}) ${gameWordString}`
         if( !playerResults.length ) {
             text += `${gameIdHeader}\n*  🚫 sin resultados*\n\n`
@@ -113,7 +113,8 @@ export async function getChampionshipResultsByGameToString( { championshipResult
 
         const avgWordScore = ( totalWordScore / gameResultsByPlayer.length ).toFixed( 2 )
         const avgAttempts = ( totalAttempts / gameResultsByPlayer.length ).toFixed( 2 )
-        const gameIdHeaderWithScore = `${gameIdHeader} | *${avgAttempts}*/6  *·*  ${avgWordScore} puntos`
+        const definitions = gameWord ? `✍️ /d\\_${gameWord} | 📚 /r\\_${gameWord}` : ''
+        const gameIdHeaderWithScore = `${gameIdHeader} | *${avgAttempts}*/6 ${definitions ? `| ${definitions}` : ''}`
 
         text += `${gameIdHeaderWithScore}\n`
 
@@ -174,7 +175,7 @@ export function getChampionshipRankingToString( championshipRanking: Championshi
         .join( '\n' )
 }
 
-function getChampionshipGameIdsRangeFromDate( date: Date = new Date() ): GameIdsRange {
+export function getChampionshipGameIdsRangeFromDate( date: Date = new Date() ): GameIdsRange {
     const dayOfTheWeek = getDayOfTheWeek( date )
     const gameId = getGameIdFromDate( date )
     return [ gameId - dayOfTheWeek, gameId + ( 6 - dayOfTheWeek ) ]

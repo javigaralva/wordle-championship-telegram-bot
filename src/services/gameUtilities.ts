@@ -19,6 +19,13 @@ export function getDateFromGameId( gameId: number ) {
     return new Date( start.getTime() + gameId * oneDay )
 }
 
+export function getDayOfTheWeek( date: Date = new Date() ) {
+    const msOffset = ( WORDLE_START_DATE.getUTCHours() * 60 * 60 + WORDLE_START_DATE.getUTCMinutes() * 60 + WORDLE_START_DATE.getUTCSeconds() ) * 1000
+    const normalizedDate = new Date( date.getTime() - msOffset )
+    const day = normalizedDate.getUTCDay()
+    return day === 0 ? 6 : day - 1
+}
+
 export function getDayOfTheWeekFromGameId( gameId: number ) {
     const date = getDateFromGameId( gameId )
     const day = date.getDay()

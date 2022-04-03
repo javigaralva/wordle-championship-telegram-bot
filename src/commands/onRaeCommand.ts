@@ -3,10 +3,17 @@ import { bot } from '../bot/bot'
 import { sendMessage } from "../bot/sendMessage"
 import { getRaeDefinitions } from '../services/raeDefinitions'
 
-export const onRaeCommandRegex = /\/rae/
+// Examples:
+// /rae tongo <=> /r_tongo
+export const onRaeCommandRegex = /^\/(rae\s+|r_)(?<search>.+)/gm
 
 export async function onRaeCommandHandler( msg: TelegramBot.Message ) {
-    const word = msg?.text?.split( ' ' )[ 1 ]
+    const match = msg.text?.matchAll( onRaeCommandRegex )
+    if( !match ) return
+
+    const { groups: { search } } = match.next().value
+
+    const word = search.split( ' ' )[ 0 ]
     if( !word ) return await sendMessage( msg.chat.id, 'ℹ️ Por favor, introduce la palabra a buscar en la RAE. Ejemplos:\n  */rae tongo*\n  */rae engañifa*' )
 
     const searchUpperCase = word.toUpperCase()
