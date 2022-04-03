@@ -17,4 +17,12 @@ export function sleep( ms: number ) {
 
 export function markdownEscape( text: string ) {
     return text.replace( /([*[])/g, "\\$1" )
+}    return text.replace( /([*[])/g, '\\$1' )
 }
+
+export function encodeText( text: string ) {
+    return base58.encode( Buffer.from( text ) )
+}
+
+export function decodeText( encodedText: string ) {
+    return Buffer.from( base58.decode( encodedText ) ).toString()

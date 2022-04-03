@@ -2,6 +2,7 @@ import TelegramBot from 'node-telegram-bot-api'
 import { bot } from '../bot/bot'
 import { sendMessage } from '../bot/sendMessage'
 import { getGoogleDefinitionsAndExamplesFor } from '../services/googleDefinitions'
+import { decodeText } from '../utils'
 
 // Examples:
 // /def tongo <=> /d_tongo
@@ -13,7 +14,8 @@ export async function onDefCommandHandler( msg: TelegramBot.Message ) {
     if( !match ) return
 
     let { groups: { search } } = match.next().value
-    search = search.trim().split( '_' ).join( ' ' )
+    const preProcessedSearch = search.trim().split( '_' ).join( ' ' )
+    search = msg.text?.startsWith( '/d_') ? decodeText( preProcessedSearch ) : preProcessedSearch
 
     if( !search ) return await sendMessage( msg.chat.id, 'ℹ️ Por favor, introduce lo que quieras definir. Ejemplos:\n  */def pelota vasca*\n  */def mejunje*' )
 

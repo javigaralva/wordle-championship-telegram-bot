@@ -4,7 +4,7 @@ import { IWord } from '../models/Word'
 import { attemptsToString, getDayOfTheWeek, getDayOfTheWeekFromGameId, getGameIdFromDate, getIconByPosition, getNameWithAvatar, getTodaysGameId } from './gameUtilities'
 import * as Repository from '../repository/repository'
 import { getScore } from './score'
-import { intersection } from '../utils'
+import { encodeText, intersection } from '../utils'
 import { ALL_PLAYERS_IDS } from '../config/config'
 
 type GameIdsRange = [ number, number ]
@@ -113,8 +113,9 @@ export async function getChampionshipResultsByGameToString( { championshipResult
 
         const avgWordScore = ( totalWordScore / gameResultsByPlayer.length ).toFixed( 2 )
         const avgAttempts = ( totalAttempts / gameResultsByPlayer.length ).toFixed( 2 )
-        const definitions = gameWord ? `✍️ /d\\_${gameWord} | 📚 /r\\_${gameWord}` : ''
-        const gameIdHeaderWithScore = `${gameIdHeader} | *${avgAttempts}*/6 ${definitions ? `| ${definitions}` : ''}`
+        const encodedWord = encodeText( gameWord )
+        const definitions = gameWord ? `✍️ /d\\_${encodedWord} | 📚 /r\\_${encodedWord}` : ''
+        const gameIdHeaderWithScore = `${gameIdHeader} | *${avgAttempts}*/6 ${definitions ? `\n${definitions}` : ''}`
 
         text += `${gameIdHeaderWithScore}\n`
 
