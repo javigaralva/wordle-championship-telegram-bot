@@ -81,9 +81,9 @@ export async function getChampionshipResultsByGameToString( { championshipResult
         const playerResults = championshipResults.filter( playerResult => playerResult.gameId === gameId )
 
         const word = championshipWords.find( word => word.gameId === gameId )
-        const gameWord = ( word?.word ?? '' ).toUpperCase()
+        const gameWord = ( word?.word ?? '' )
 
-        const gameWordString = gameWord ? `- *${gameWord}*` : ''
+        const gameWordString = gameWord ? `- *${gameWord.toUpperCase()}*` : ''
         const gameIdHeader = `*#${gameId}* (${getDayOfTheWeekFromGameId( gameId )}) ${gameWordString}`
         if( !playerResults.length ) {
             text += `${gameIdHeader}\n*  🚫 sin resultados*\n\n`
@@ -113,7 +113,8 @@ export async function getChampionshipResultsByGameToString( { championshipResult
 
         const avgWordScore = ( totalWordScore / gameResultsByPlayer.length ).toFixed( 2 )
         const avgAttempts = ( totalAttempts / gameResultsByPlayer.length ).toFixed( 2 )
-        const gameIdHeaderWithScore = `${gameIdHeader} | *${avgAttempts}*/6  *·*  ${avgWordScore} puntos`
+        const definitions = gameWord ? `✍️ /d\\_${gameWord} | 📚 /r\\_${gameWord}` : ''
+        const gameIdHeaderWithScore = `${gameIdHeader} | *${avgAttempts}*/6 ${definitions ? `| ${definitions}` : ''}`
 
         text += `${gameIdHeaderWithScore}\n`
 
