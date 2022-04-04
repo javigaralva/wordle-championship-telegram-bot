@@ -26,5 +26,8 @@ export function encodeText( text: string ) {
 }
 
 export function decodeText( encodedText: string ) {
-    return Buffer.from( base58.decode( encodedText ) ).toString()
+    try {
+        return Buffer.from( base58.decode( encodedText ) ).toString()
+    }
+    catch( e ) {}
 }
