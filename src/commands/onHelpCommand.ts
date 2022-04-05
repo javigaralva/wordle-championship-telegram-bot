@@ -27,14 +27,14 @@ export async function onHelpCommandHandler( msg: TelegramBot.Message ) {
         '\n' +
         '*NOTA1:* El siguiente ejemplo muestra el esquema de una cabecera de un resultado de juego:\n' +
         '\n' +
-        '    *#89* (Martes) - *DUQUE* | *3.63*/6\n' +
-        '    ✍️ /d\\_CLNGfbJ | 📚 /r\\_CLNGfbJ\n' +
+        '    *#87* (Lunes) - *SUDAR* | *3.63*/6\n' +
+        '    ✍️ /d\\_E2XAixH | 📚 /r\\_E2XAixH\n' +
         '\n' +
         '    *Interpretación de la cabecera:*\n' +
-        '    - El juego fue el *#89* y cayó en *Martes*.\n' +
-        '    - La palabra fue *DUQUE*.\n' +
+        '    - El juego fue el *#87* y cayó en *Lunes*.\n' +
+        '    - La palabra fue *SUDAR*.\n' +
         '    - La media de intentos de todos los jugadores fue de *3.63* sobre 6.\n' +
-        '    - Si pulsas en /d\\_CLNGfbJ te mostrará a la definición y ejemplos, si los tuviera, en *Google*.\n' +
-        '    - Si pulsas en /r\\_CLNGfbJ te mostrará la definición en la *RAE*.\n'
+        '    - Si pulsas en /d\\_E2XAixH te mostrará a la definición y ejemplos, si los tuviera, en *Google*.\n' +
+        '    - Si pulsas en /r\\_E2XAixH te mostrará la definición en la *RAE*.\n'
     )
 }
