@@ -15,7 +15,7 @@ type ParsedResult = {
     isValid: boolean
 }
 
-export const onPlayerForwardResultCommandRegex = /#(\d+) (\d|X)\/6/gm
+export const onPlayerForwardResultCommandRegex = /Wordle\s+\(ES\)\s+#(\d+) (\d|X)\/6/gm
 
 export async function onPlayerForwardResultCommandHandler( msg: TelegramBot.Message ) {
     const { text } = msg
