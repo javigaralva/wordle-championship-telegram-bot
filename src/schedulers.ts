@@ -1,10 +1,13 @@
+import axios from 'axios'
+
 import { getPlayer } from './repository/repository'
 import { getTodaysGameId, WORDLE_START_DATE } from './services/gameUtilities'
-import { ALL_PLAYERS_IDS } from './config/config'
+import { ADMIN_ID, ALL_PLAYERS_IDS } from './config/config'
 import { sendMessage } from './bot/sendMessage'
 import { sendReport } from './services/senders'
-import { getChampionshipData } from './services/championship'
+import { getChampionshipData, getWordByGameId } from './services/championship'
 import { difference } from './utils'
+import { addWord } from './services/admin'
 
 export const scheduleReminderToPlay = makeDailyScheduler( {
     hourUTC: 21,
@@ -18,6 +21,13 @@ export const scheduleSendDailyReport = makeDailyScheduler( {
     minuteUTC: 30,
     name: 'Send daily report',
     handler: handleSendDailyReport
+} )
+
+export const scheduleUpdateWordOfTheDay = makeDailyScheduler( {
+    hourUTC: WORDLE_START_DATE.getUTCHours(),
+    minuteUTC: 30,
+    name: 'Update Word of the Day',
+    handler: handleUpdateWordOfTheDay
 } )
 
 function makeDailyScheduler( { hourUTC, minuteUTC, name, handler }: { hourUTC: number, minuteUTC: number, name: string, handler: () => Promise<void> } ) {
@@ -58,6 +68,61 @@ async function handleSendDailyReport() {
 
     // Schedule next daily report
     scheduleSendDailyReport()
+}
+
+async function handleUpdateWordOfTheDay() {
+    let numOfRetries = 0
+    const todaysGameId = getTodaysGameId()
+
+    const wordOfTheDay = await getWordByGameId( todaysGameId )
+    if( wordOfTheDay ) {
+        console.log( `${new Date().toISOString()} >> Word of the day has been already added.` )
+        return scheduleUpdateWordOfTheDay()
+    }
+
+    const response = await fetchWord( todaysGameId )
+    if( !response?.data ) return retry()
+
+    const word = parseResponseData( response.data )
+    if( !word ) {
+        numOfRetries++
+        console.error( 'Error parsing the word of the day' )
+        return retry()
+    }
+
+    await addWord( { gameId: todaysGameId, word } )
+    sendMessage( ADMIN_ID, `✅ La palabra para el juego *#${todaysGameId}* ha sido añadida.`, true )
+
+    // Schedule next update
+    scheduleUpdateWordOfTheDay()
+
+    async function retry() {
+        const MAX_RETRIES = 5
+        if( numOfRetries > MAX_RETRIES ) {
+            console.error( `Max num of retries reached (${MAX_RETRIES}). Scheduling for next day.` )
+            return scheduleUpdateWordOfTheDay()
+        }
+        const MS_DELAY = 60_000
+        console.log( `${new Date().toISOString()} >> Retrying to fetch word of the day (${MS_DELAY}ms)...` )
+        setTimeout( handleUpdateWordOfTheDay, MS_DELAY )
+    }
+}
+
+async function fetchWord( gameId: number ) {
+    try {
+        const url = `https://www.gamereactor.es/wordle-2${gameId + 1}-y-wordle-es-${gameId}-solucion-con-la-palabra-del-reto-de-hoy/`
+        console.log( `Fetching word of the day (${url}) ...` )
+        return await axios.get( url )
+    }
+    catch( error ) {
+        console.error( 'Error fetching the word of the day' )
+    }
+}
+
+function parseResponseData( data: string ): string | undefined {
+    const match = data.matchAll( /solución del reto de Wordle hoy, es (?<word>.{5})/gm )
+    const { groups: { word } } = match.next().value
+    return word?.toLowerCase()
 }
 
 async function getPlayersIdsThatDidNotPlayToday() {

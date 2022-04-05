@@ -3,7 +3,7 @@ import './lib/db'
 
 import { Commands } from './commands'
 
-import { scheduleReminderToPlay, scheduleSendDailyReport } from './schedulers'
+import { scheduleReminderToPlay, scheduleSendDailyReport, scheduleUpdateWordOfTheDay } from './schedulers'
 
 import { getChampionshipData, getChampionshipResultsByPlayerIdToString } from './services/championship'
 import { sendDailyReport, sendEndOfChampionshipMessage } from './services/senders'
@@ -15,6 +15,7 @@ import { ADMIN_ID } from './config/config'
 // Schedule reminders and send daily reports
 scheduleReminderToPlay()
 scheduleSendDailyReport()
+scheduleUpdateWordOfTheDay()
 
 // Register all bot commands
 for( const command of Object.values( Commands ) ) {

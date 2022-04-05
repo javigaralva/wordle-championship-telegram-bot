@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@jodacame/raejs": "1.0.6",
+    "axios": "0.26.1",
     "bs58": "5.0.0",
     "dotenv": "16.0.0",
     "googlethis": "1.2.7",
