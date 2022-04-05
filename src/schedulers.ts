@@ -121,7 +121,7 @@ async function fetchWord( gameId: number ) {
 
 function parseResponseData( data: string ): string | undefined {
     const match = data.matchAll( /solución del reto de Wordle hoy, es (?<word>.{5})/gm )
-    const { groups: { word } } = match.next().value
+    const { groups: { word } } = match.next().value ?? { groups: { word: undefined } }
     return word?.toLowerCase()
 }
 
