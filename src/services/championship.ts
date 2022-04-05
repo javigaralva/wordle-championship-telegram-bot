@@ -66,6 +66,10 @@ export async function getChampionshipWords() {
     return words
 }
 
+export async function getWordByGameId( gameId: number ) {
+    return Repository.findWordByGameId( gameId )
+}
+
 export async function getChampionshipResults() {
     const gameIdsRange = getChampionshipGameIdsRangeFromDate()
     const championshipResults: IPlayerResult[] = await Repository.findPlayersResultsIn( gameIdsRange )
