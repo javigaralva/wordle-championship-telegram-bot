@@ -21,9 +21,20 @@ export async function onHelpCommandHandler( msg: TelegramBot.Message ) {
         '*Comandos 📝*\n' +
         '  /start: Inicia el texto de bienvenida.\n' +
         '  /ayuda: Muestra esta ayuda.\n' +
-        '  /resultados: Muestra los resultados del campeonato.\n' +
+        '  /resultados: Muestra los resultados del campeonato (ver NOTA1).\n' +
         '  /def *concepto*: Muestra la definición de un concepto.\n' +
         '  /rae *palabra*: Muestras las definiciones en la RAE sobre la palabra.\n' +
-        '\n'
+        '\n' +
+        '*NOTA1:* El siguiente ejemplo muestra el esquema de una cabecera de un resultado de juego:\n' +
+        '\n' +
+        '    *#89* (Martes) - *DUQUE* | *3.63*/6\n' +
+        '    ✍️ /d\\_CLNGfbJ | 📚 /r\\_CLNGfbJ\n' +
+        '\n' +
+        '    *Interpretación de la cabecera:*\n' +
+        '    - El juego fue el *#89* y cayó en *Martes*.\n' +
+        '    - La palabra fue *DUQUE*.\n' +
+        '    - La media de intentos de todos los jugadores fue de *3.63* sobre 6.\n' +
+        '    - Si pulsas en /d\\_CLNGfbJ te mostrará a la definición y ejemplos, si los tuviera, en *Google*.\n' +
+        '    - Si pulsas en /r\\_CLNGfbJ te mostrará la definición en la *RAE*.\n'
     )
 }
