@@ -7,7 +7,7 @@ import { getScore } from '../services/score'
 import { getRandomAvatar } from '../utils'
 import { sendMessage } from '../bot/sendMessage'
 import { sendChampionshipReportTo, sendReport } from '../services/senders'
-import { ADMIN_ID } from '../config/config'
+import { NOTIFICATION_PLAYERS_IDS } from '../config/config'
 
 type ParsedResult = {
     gameId: number,
@@ -15,7 +15,7 @@ type ParsedResult = {
     isValid: boolean
 }
 
-export const onPlayerForwardResultCommandRegex = /#(\d+) (\d|X)\/6/gm
+export const onPlayerForwardResultCommandRegex = /Wordle\s+\(ES\)\s+#(\d+) (\d|X)\/6/gm
 
 export async function onPlayerForwardResultCommandHandler( msg: TelegramBot.Message ) {
     const { text } = msg
@@ -60,10 +60,9 @@ export async function onPlayerForwardResultCommandHandler( msg: TelegramBot.Mess
     const score = await getScore( attempts )
     await sendMessage( id, `✅ *${getNameWithAvatar( playerSaved )}*, tu resultado de *${attemptsToString( attempts )}/6* para el juego *#${gameId}* ha sido registrado.* Has obtenido ${score} puntos*.` )
 
-    // Send info to the admin (if admin has played)
-    const haveAdminPlayed = await havePlayerIdPlayedThis( gameId, ADMIN_ID )
-    const hasToSendToAdmin = haveAdminPlayed && player.id !== ADMIN_ID
-    hasToSendToAdmin && await sendMessage( ADMIN_ID, `ℹ️ *${getNameWithAvatar( playerSaved )}*: *${attemptsToString( attempts )}/6* para el juego *#${gameId}* ha sido registrado.* Ha obtenido ${score} puntos*.` )
+    // Send notifications
+    const notificationText = `ℹ️ *${getNameWithAvatar( playerSaved )}*: *${attemptsToString( attempts )}/6* para el juego *#${gameId}*. *Ha obtenido ${score} puntos*.`
+    await sendUserPlayedNotifications( { gameId, notificationText, player } )
 
     // Send Provisional Ranking to the player, or to all players (if they have played)
     await haveAllPlayersPlayedThis( todaysGameId )
@@ -71,8 +70,15 @@ export async function onPlayerForwardResultCommandHandler( msg: TelegramBot.Mess
         : await sendChampionshipReportTo( todaysGameId, player.id )
 }
 
+async function sendUserPlayedNotifications( { gameId, notificationText, player }: { gameId: number; notificationText: string; player: IPlayer } ) {
+    for( const playerIdToBeNotified of NOTIFICATION_PLAYERS_IDS ) {
+        if( player.id === playerIdToBeNotified ) continue
+        const havePlayerToBeNotifiedPlayed = await havePlayerIdPlayedThis( gameId, playerIdToBeNotified )
+        havePlayerToBeNotifiedPlayed && await sendMessage( playerIdToBeNotified, notificationText )
+    }
+}
 export function parseForwardResult( forwardedResult: string ): ParsedResult | undefined {
-    const match = /#(\d+) (\d|X)\/6/gm.exec( forwardedResult )
+    const match = onPlayerForwardResultCommandRegex.exec( forwardedResult )
     if( !match ) return
 
     const [ , round, attempts ] = match
