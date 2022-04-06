@@ -52,3 +52,10 @@ bot.onText( /#send ranking/, async ( msg ) => {
 bot.onText( /#send final ranking/, async ( msg ) => {
     await sendEndOfChampionshipMessage()
 } )
+
+//
+// print all received messages
+//
+bot.on( 'message', async ( msg ) => {
+    console.log( `${new Date().toISOString()} >> Received message: ${JSON.stringify( msg )}` )
+} )
