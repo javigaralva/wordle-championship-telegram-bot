@@ -81,6 +81,9 @@ export function parseForwardResult( forwardedResult: string ): ParsedResult | un
     const match = onPlayerForwardResultCommandRegex.exec( forwardedResult )
     if( !match ) return
 
+    // reset index so we start at the beginning of the regex each time
+    onPlayerForwardResultCommandRegex.lastIndex = 0
+
     const [ , round, attempts ] = match
     const parsedAttempts = getNumberOfAttempts( forwardedResult )
     const isValid = ( attempts === 'X' ? 6 : parseInt( attempts ) ) === parsedAttempts
