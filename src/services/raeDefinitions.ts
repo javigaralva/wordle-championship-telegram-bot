@@ -1,11 +1,11 @@
 import he from 'he'
-import { markdownEscape } from '../utils'
+import { markdownEscape, memoizeAsync } from '../utils'
 const raejs = require( '@jodacame/raejs' )
 
 const BULLETS_ICONS = [ '🟢', '🔵', '🟣', '🔴', '🟠', '🟡' ]
 const DEFINITION_ICONS = [ '📘', '📙', '📗', '📕' ]
 
-export async function getRaeDefinitions( word: string ) {
+export const getRaeDefinitions = memoizeAsync( async function( word: string ) {
 
     if( !word ) return
 
@@ -25,4 +25,4 @@ export async function getRaeDefinitions( word: string ) {
     )
 
     return text
-}
+} )
