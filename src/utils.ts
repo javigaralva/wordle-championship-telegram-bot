@@ -31,3 +31,14 @@ export function decodeText( encodedText: string ) {
     }
     catch( e ) {}
 }
+
+export function memoizeAsync<T extends ( ...args: any[] ) => Promise<any>>( fn: T ) {
+    const cache: { [ key: string ]: any } = {}
+    return async function( ...args: Parameters<T> ) {
+        const key = JSON.stringify( args )
+        if( cache[ key ] ) return cache[ key ]
+        const result = await fn( ...args )
+        cache[ key ] = result
+        return result
+    }
+}
