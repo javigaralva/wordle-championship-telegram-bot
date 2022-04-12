@@ -1,5 +1,5 @@
 import { getDateFromGameId, getNameWithAvatar } from './gameUtilities'
-import { ChampionshipData, getChampionshipData } from './championship'
+import { ChampionshipData, getChampionshipData, haveAllPlayersPlayedThis } from './championship'
 import { bot } from '../bot/bot'
 import { sendMessage } from '../bot/sendMessage'
 import { findWordByGameId } from '../repository/repository'
@@ -8,7 +8,12 @@ import { sleep } from '../utils'
 
 export async function sendChampionshipReportTo( todaysGameId: number, playerId: number, silent = false ) {
     const { championshipString } = await getChampionshipData()
-    await sendMessage( playerId, championshipString, silent )
+
+    const championshipStringToSend = await haveAllPlayersPlayedThis( todaysGameId )
+        ? championshipString
+        : championshipString.replace( 'RANKING', 'RANKING (provisional)' )
+
+    await sendMessage( playerId, championshipStringToSend, silent )
 }
 
 export async function sendReport( todaysGameId: number, silent = false, championshipData?: ChampionshipData ) {
