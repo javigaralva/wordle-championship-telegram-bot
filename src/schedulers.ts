@@ -110,7 +110,7 @@ async function handleUpdateWordOfTheDay() {
 
 async function fetchWord( gameId: number ) {
     try {
-        const url = `https://www.gamereactor.es/wordle-2${gameId + 1}-y-wordle-es-${gameId}-solucion-con-la-palabra-del-reto-de-hoy/`
+        const url = `https://www.gamereactor.es/wordle-${gameId + 201}-y-wordle-es-${gameId}-solucion-con-la-palabra-del-reto-de-hoy/`
         console.log( `Fetching word of the day (${url}) ...` )
         return await axios.get( url )
     }
