@@ -2,7 +2,7 @@ import axios from 'axios'
 
 import { getPlayer } from './repository/repository'
 import { getTodaysGameId, WORDLE_START_DATE } from './services/gameUtilities'
-import { ADMIN_ID, ALL_PLAYERS_IDS } from './config/config'
+import { ADMIN_ID, ALL_PLAYERS_IDS, WORDLE_TYPE } from './config/config'
 import { sendMessage } from './bot/sendMessage'
 import { sendReport } from './services/senders'
 import { getChampionshipData, getWordByGameId } from './services/championship'
@@ -25,7 +25,7 @@ export const scheduleSendDailyReport = makeDailyScheduler( {
 
 export const scheduleUpdateWordOfTheDay = makeDailyScheduler( {
     hourUTC: WORDLE_START_DATE.getUTCHours(),
-    minuteUTC: 30,
+    minuteUTC: 5,
     name: 'Update Word of the Day',
     handler: handleUpdateWordOfTheDay
 } )
@@ -80,13 +80,9 @@ async function handleUpdateWordOfTheDay() {
         return scheduleUpdateWordOfTheDay()
     }
 
-    const response = await fetchWord( todaysGameId )
-    if( !response?.data ) return retry()
-
-    const word = parseResponseData( response.data )
+    const word = await fetchWord( todaysGameId )
     if( !word ) {
-        numOfRetries++
-        console.error( 'Error parsing the word of the day' )
+        console.error( 'Error getting the word of the day' )
         return retry()
     }
 
@@ -97,7 +93,8 @@ async function handleUpdateWordOfTheDay() {
     scheduleUpdateWordOfTheDay()
 
     async function retry() {
-        const MAX_RETRIES = 5
+        // Retry infinitely until the word is found (or manually added)
+        const MAX_RETRIES = Number.MAX_SAFE_INTEGER
         if( numOfRetries > MAX_RETRIES ) {
             console.error( `Max num of retries reached (${MAX_RETRIES}). Scheduling for next day.` )
             return scheduleUpdateWordOfTheDay()
@@ -108,18 +105,51 @@ async function handleUpdateWordOfTheDay() {
     }
 }
 
-async function fetchWord( gameId: number ) {
+export async function fetchWord( gameId: number ) {
+    return await fetchWordFromGithub( gameId )
+}
+
+async function fetchWordFromGithub( gameId: number ) {
     try {
-        const url = `https://www.gamereactor.es/wordle-2${gameId + 1}-y-wordle-es-${gameId}-solucion-con-la-palabra-del-reto-de-hoy/`
+        const GITHUB_URL_BASE = 'https://raw.githubusercontent.com/javigaralva/wordle-ES-solutions/main/solutions'
+        const url = {
+            NORMAL: `${GITHUB_URL_BASE}/solutions-normal.json`,
+            ACCENT: `${GITHUB_URL_BASE}/solutions-accent.json`,
+            SCIENCE: `${GITHUB_URL_BASE}/solutions-science.json`,
+        }[ WORDLE_TYPE ]
+
+        if( !url ) return console.error( `Unknown wordle type: ${WORDLE_TYPE}` )
+
         console.log( `Fetching word of the day (${url}) ...` )
-        return await axios.get( url )
+        const response = await axios.get( url )
+        if( !response?.data ) return
+
+        return parseGitHubResponseData( { data: response.data, gameId } )
     }
     catch( error ) {
         console.error( 'Error fetching the word of the day' )
     }
 }
 
-function parseResponseData( data: string ): string | undefined {
+function parseGitHubResponseData( { data, gameId }: { data: { gameId: number, word: string }[], gameId: number } ) {
+    return data.find( ( { gameId: id } ) => id === gameId )?.word
+}
+
+async function fetchWordFromGameReactor( gameId: number ) {
+    try {
+        const url = `https://www.gamereactor.es/wordle-${gameId + 201}-y-wordle-es-${gameId}-solucion-con-la-palabra-del-reto-de-hoy/`
+        console.log( `Fetching word of the day (${url}) ...` )
+        const response = await axios.get( url )
+        if( !response?.data ) return
+
+        return parseGameReactorResponseData( response.data )
+    }
+    catch( error ) {
+        console.error( 'Error fetching the word of the day' )
+    }
+}
+
+function parseGameReactorResponseData( data: string ): string | undefined {
     const match = data.matchAll( /solución del reto de Wordle hoy, es (?<word>.{5})/gm )
     const { groups: { word } } = match.next().value ?? { groups: { word: undefined } }
     return word?.toLowerCase()
