@@ -15,7 +15,7 @@ import { ADMIN_ID } from './config/config'
 // Schedule reminders and send daily reports
 scheduleReminderToPlay()
 scheduleSendDailyReport()
-// scheduleUpdateWordOfTheDay()
+scheduleUpdateWordOfTheDay()
 
 // Register all bot commands
 for( const command of Object.values( Commands ) ) {
