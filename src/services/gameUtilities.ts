@@ -1,6 +1,11 @@
+import { WORDLE_TYPE } from '../config/config'
 import { IPlayer } from '../models/Player'
 
-export const WORDLE_START_DATE = new Date( '2022-01-06T04:00:00.000Z' )
+export const WORDLE_START_DATE = {
+    NORMAL  : new Date( '2022-01-06T04:00:00.000Z' ),
+    ACCENT  : new Date( '2022-02-28T04:00:00.000Z' ),
+    SCIENCE : new Date( '2022-03-13T04:00:00.000Z' ),
+}[ WORDLE_TYPE ]
 
 export function getTodaysGameId() {
     return getGameIdFromDate()
