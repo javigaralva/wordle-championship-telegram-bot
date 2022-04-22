@@ -1,13 +1,27 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { sendMessage } from '../bot/sendMessage'
+import { WORDLE_TYPE } from '../config/config'
+
+const TEXTS = {
+    HEADER: {
+        NORMAL: '*🏆 Wordle Championship 🏆*',
+        ACCENT: '*🏆 Wordle Championship Tildes 🏆*',
+        SCIENCE: '*🏆 Wordle Championship Científico 🏆*',
+    }[ WORDLE_TYPE ],
+    PARTICIPATE: {
+        NORMAL: '📨 Para participar solo tienes que *reenviar al bot* el resultado desde la web de https://wordle.danielfrg.com cuando termines la partida.',
+        ACCENT: '📨 Para participar solo tienes que *reenviar al bot* el resultado desde la web de https://wordle.danielfrg.com/tildes (versión *TILDES*) cuando termines la partida.',
+        SCIENCE: '📨 Para participar solo tienes que *reenviar al bot* el resultado desde la web de https://wordle.danielfrg.com/ciencia (versión *CIENCIA*) cuando termines la partida.',
+    }[ WORDLE_TYPE ],
+}
 
 export const onHelpCommandRegex = /\/ayuda/
 
 export async function onHelpCommandHandler( msg: TelegramBot.Message ) {
     await sendMessage( msg.chat.id,
-        '*🏆 Wordle Championship 🏆*\n' +
+        `${TEXTS.HEADER}\n` +
         '🏁 Cada lunes comienza automáticamente un nuevo campeonato.\n' +
-        '📨 Para participar solo tienes que *reenviar al bot* el resultado desde la web de https://wordle.danielfrg.com cuando termines la partida.\n' +
+        `${TEXTS.PARTICIPATE}\n` +
         '\n' +
         '*Puntuación 📋*\n' +
         '  *👉 Ronda 1*: 21 puntos\n' +

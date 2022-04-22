@@ -7,7 +7,7 @@ import { getScore } from '../services/score'
 import { getRandomAvatar } from '../utils'
 import { sendMessage } from '../bot/sendMessage'
 import { sendChampionshipReportTo, sendReport } from '../services/senders'
-import { NOTIFICATION_PLAYERS_IDS } from '../config/config'
+import { NOTIFICATION_PLAYERS_IDS, WORDLE_TYPE } from '../config/config'
 
 type ParsedResult = {
     gameId: number,
@@ -15,7 +15,11 @@ type ParsedResult = {
     isValid: boolean
 }
 
-export const onPlayerForwardResultCommandRegex = /Wordle\s+\(ES\)\s+#(\d+) (\d|X)\/6/gm
+export const onPlayerForwardResultCommandRegex = {
+    NORMAL: /Wordle\s+\(ES\)\s+#(\d+) (\d|X)\/6/gm,
+    ACCENT: /Wordle\s+Tildes\s+#(\d+) (\d|X)\/6/gm,
+    SCIENCE: /Wordle\s+Científico\s+#(\d+) (\d|X)\/6/gm,
+}[ WORDLE_TYPE ]
 
 export async function onPlayerForwardResultCommandHandler( msg: TelegramBot.Message ) {
     const { text } = msg
