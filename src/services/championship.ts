@@ -10,6 +10,7 @@ import { ALL_PLAYERS_IDS } from '../config/config'
 type GameIdsRange = [ number, number ]
 type PlayerFinalScore = {
     player: IPlayer,
+    attemptsAvg: number,
     finalScore: number
 }
 type ChampionshipRanking = PlayerFinalScore[]
@@ -42,7 +43,10 @@ export async function getChampionshipData(): Promise<ChampionshipData> {
     const championshipRanking = getChampionshipRanking( { championshipResults, championshipPlayers } )
     const championshipRankingString = getChampionshipRankingToString( championshipRanking )
 
-    const championshipString = `*RESULTADOS POR JUEGO 📋*\n\n${championshipResultsByGameString}*RANKING* 🏆\n${championshipRankingString}`
+    const championshipAttempts = championshipResults.map( result => result.attempts )
+    const championshipAttemptsAvg = calculateAvgAttempts( championshipAttempts ).toFixed( 2 )
+
+    const championshipString = `*RESULTADOS POR JUEGO 📋*\n\n${championshipResultsByGameString}*RANKING | ${championshipAttemptsAvg}*/6 🏆\n${championshipRankingString}`
 
     return {
         championshipPlayers,
@@ -164,24 +168,26 @@ async function getResultsByPlayerIdInRange( playerId: number, gameIdsRange: Game
 export function getChampionshipRanking(
     { championshipResults, championshipPlayers }: { championshipResults: IPlayerResult[], championshipPlayers: IPlayer[] }
 ): ChampionshipRanking {
-    const playerScore = championshipPlayers
+    const playersFinalScore = championshipPlayers
         .map( ( player ) => {
-            const finalScore = championshipResults
-                .filter( result => result.playerId === player.id )
-                .reduce( ( score, gameResult ) => score + ( getScore( gameResult.attempts ) ), 0 )
+            const playerResults = championshipResults.filter( result => result.playerId === player.id )
+            const finalScore = playerResults.reduce( ( score, gameResult ) => score + ( getScore( gameResult.attempts ) ), 0 )
+            const playerAttempts = playerResults.map( ( { attempts } ) => attempts )
+            const attemptsAvg = calculateAvgAttempts( playerAttempts )
             return {
                 player,
+                attemptsAvg,
                 finalScore
             }
         } )
         .sort( ( a, b ) => b.finalScore - a.finalScore )
 
-    return playerScore
+    return playersFinalScore
 }
 
 export function getChampionshipRankingToString( championshipRanking: ChampionshipRanking ) {
     return championshipRanking
-        .map( ( { player, finalScore }, index ) => `*${getIconByPosition( index + 1 )} ${getNameWithAvatar( player )}*: ${finalScore} puntos` )
+        .map( ( { player, finalScore, attemptsAvg }, index ) => `*${getIconByPosition( index + 1 )} ${getNameWithAvatar( player )}*: ${finalScore} puntos | ${attemptsAvg.toFixed( 2 )}/6` )
         .join( '\n' )
 }
 
@@ -201,4 +207,9 @@ export async function haveAllPlayersPlayedThis( gameId: number ) {
 export async function havePlayerIdPlayedThis( gameId: number, playerId: number ) {
     const playerResults = await findPlayerResultsByGameId( gameId )
     return playerResults.some( result => result.playerId === playerId )
+}
+
+function calculateAvgAttempts( attempts: number[] ) {
+    const totalAttempts = attempts.reduce( ( total, attempts ) => total + ( attempts === 0 ? 7 : attempts ), 0 )
+    return totalAttempts / attempts.length
 }
