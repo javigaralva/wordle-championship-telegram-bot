@@ -5,7 +5,7 @@ import { attemptsToString, getDayOfTheWeek, getDayOfTheWeekFromGameId, getGameId
 import * as Repository from '../repository/repository'
 import { getScore } from './score'
 import { encodeText, intersection } from '../utils'
-import { ALL_PLAYERS_IDS } from '../config/config'
+import { ALL_PLAYERS_IDS, USE_WORDS_LINKS } from '../config/config'
 
 type GameIdsRange = [ number, number ]
 type PlayerFinalScore = {
@@ -126,8 +126,13 @@ export async function getChampionshipResultsByGameToString( { championshipResult
 
         const avgWordScore = ( totalWordScore / gameResultsByPlayer.length ).toFixed( 2 )
         const avgAttempts = ( totalAttempts / gameResultsByPlayer.length ).toFixed( 2 )
-        const encodedWord = encodeText( gameWord )
-        const definitions = gameWord ? `✍️ /d\\_${encodedWord} | 📚 /r\\_${encodedWord}` : ''
+
+        let definitions = ''
+        if( USE_WORDS_LINKS ) {
+            const encodedWord = encodeText( gameWord )
+            definitions = gameWord ? `✍️ /d\\_${encodedWord} | 📚 /r\\_${encodedWord}` : ''
+        }
+
         const gameIdHeaderWithScore = `${gameIdHeader} | *${avgAttempts}*/6 ${definitions ? `\n${definitions}` : ''}`
 
         text += `${gameIdHeaderWithScore}\n`
