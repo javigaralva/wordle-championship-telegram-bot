@@ -1,6 +1,6 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { sendMessage } from '../bot/sendMessage'
-import { WORDLE_TYPE } from '../config/config'
+import { USE_WORDS_LINKS, WORDLE_TYPE } from '../config/config'
 
 const TEXTS = {
     HEADER: {
@@ -42,13 +42,17 @@ export async function onHelpCommandHandler( msg: TelegramBot.Message ) {
         '*NOTA1:* El siguiente ejemplo muestra el esquema de una cabecera de un resultado de juego:\n' +
         '\n' +
         '    *#87* (Lunes) - *SUDAR* | *3.63*/6\n' +
-        '    ✍️ /d\\_E2XAixH | 📚 /r\\_E2XAixH\n' +
+        ( USE_WORDS_LINKS ? '    ✍️ /d\\_E2XAixH | 📚 /r\\_E2XAixH\n' : '' ) +
         '\n' +
         '    *Interpretación de la cabecera:*\n' +
         '    - El juego fue el *#87* y cayó en *Lunes*.\n' +
         '    - La palabra fue *SUDAR*.\n' +
         '    - La media de intentos de todos los jugadores fue de *3.63* sobre 6.\n' +
-        '    - Si pulsas en /d\\_E2XAixH te mostrará a la definición y ejemplos, si los tuviera, en *Google*.\n' +
-        '    - Si pulsas en /r\\_E2XAixH te mostrará la definición en la *RAE*.\n'
+        ( USE_WORDS_LINKS
+            ? ( '    - Si pulsas en /d\\_E2XAixH te mostrará a la definición y ejemplos, si los tuviera, en *Google*.\n' +
+                '    - Si pulsas en /r\\_E2XAixH te mostrará la definición en la *RAE*.\n'
+            )
+            : ''
+        )
     )
 }
