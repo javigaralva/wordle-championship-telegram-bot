@@ -10,7 +10,7 @@ import { difference } from './utils'
 import { addWord } from './services/admin'
 
 export const scheduleReminderToPlay = makeDailyScheduler( {
-    hourUTC: 21,
+    hourUTC: 20,
     minuteUTC: 0,
     name: 'Reminder to play',
     handler: handleReminderToPlay
