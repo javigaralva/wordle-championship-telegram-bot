@@ -91,7 +91,6 @@ export function parseForwardResult( forwardedResult: string ): ParsedResult | un
     const [ , round, attempts ] = match
     const parsedAttempts = getNumberOfAttempts( forwardedResult )
     const isValid = ( attempts === 'X' ? 6 : parseInt( attempts ) ) === parsedAttempts
-    console.log(round, attempts, parsedAttempts)
     return {
         gameId: parseInt( round ),
         attempts: attempts === 'X' ? 0 : parseInt( attempts ),
