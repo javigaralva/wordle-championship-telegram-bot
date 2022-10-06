@@ -102,7 +102,7 @@ export function parseForwardResult( forwardedResult: string ): ParsedResult | un
 function getNumberOfAttempts( forwardedResult: string ): number {
     return forwardedResult
         .split( '\n' )
-        .filter( o => !o.includes( 'palabra' ) )
+        .filter( o => !o.includes( 'palabra' ) && !o.includes( 'http' ) )
         .filter( Boolean )
         .length
 }
