@@ -9,9 +9,9 @@ const TEXTS = {
         SCIENCE: '👋 ¡Bienvenido a Wordle Científico Championship!',
     }[ WORDLE_TYPE ],
     PARTICIPATE: {
-        NORMAL: '📨 Para participar solo me tienes que reenviar el resultado desde la web de https://https://lapalabradeldia.com cuando termines la partida.',
-        ACCENT: '📨 Para participar solo me tienes que reenviar el resultado desde la web de https://https://lapalabradeldia.com/tildes (versión *TILDES*) cuando termines la partida.',
-        SCIENCE: '📨 Para participar solo me tienes que reenviar el resultado desde la web de https://https://lapalabradeldia.com/ciencia (versión *CIENTÍFICO*) cuando termines la partida.',
+        NORMAL: '📨 Para participar solo me tienes que reenviar el resultado desde la web de https://lapalabradeldia.com cuando termines la partida.',
+        ACCENT: '📨 Para participar solo me tienes que reenviar el resultado desde la web de https://lapalabradeldia.com/tildes (versión *TILDES*) cuando termines la partida.',
+        SCIENCE: '📨 Para participar solo me tienes que reenviar el resultado desde la web de https://lapalabradeldia.com/ciencia (versión *CIENTÍFICO*) cuando termines la partida.',
     }[ WORDLE_TYPE ],
 }
 
