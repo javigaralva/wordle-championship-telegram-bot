@@ -1,15 +1,17 @@
 import TelegramBot from 'node-telegram-bot-api'
 
+import { onAddPlayerResultCommandHandler, onAddPlayerResultCommandRegex } from './onAddPlayerResultCommand'
 import { onDefCommandHandler, onDefCommandRegex } from './onDefCommand'
-import { onHelpCommandRegex, onHelpCommandHandler } from './onHelpCommand'
+import { onHelpCommandHandler, onHelpCommandRegex } from './onHelpCommand'
 import { onPlayerForwardResultCommandHandler, onPlayerForwardResultCommandRegex } from './onPlayerForwardResultCommand'
-import { onResultsCommandsRegex, onResultsCommandsHandler } from './onResultsCommand'
-import { onRaeCommandRegex, onRaeCommandHandler } from './onRaeCommand'
+import { onPlayersCommandHandler, onPlayersCommandRegex } from './onPlayersCommand'
+import { onRaeCommandHandler, onRaeCommandRegex } from './onRaeCommand'
+import { onResultsCommandsHandler, onResultsCommandsRegex } from './onResultsCommand'
 import { onStartCommandHandler, onStartCommandRegex } from './onStartCommand'
 import { onWordCommandHandler, onWordCommandRegex } from './onWordCommand'
 
 import { onDanceCommandHandler, onDanceCommandRegex } from './easterEggs/onDanceCommand'
-import { onWinnerCommandRegex, onWinnerCommandHandler } from './easterEggs/onWinnerCommand'
+import { onWinnerCommandHandler, onWinnerCommandRegex } from './easterEggs/onWinnerCommand'
 
 import { ALL_PLAYERS_IDS } from '../config/config'
 
@@ -25,9 +27,9 @@ const auth = ( handler: CommandHandler ) => async ( msg: TelegramBot.Message ) =
 }
 
 export const Commands = {
-    Dance: {
-        handler: auth( onDanceCommandHandler ),
-        regex: onDanceCommandRegex
+    AddPlayerResult: {
+        handler: auth( onAddPlayerResultCommandHandler ),
+        regex: onAddPlayerResultCommandRegex
     },
     Def: {
         handler: auth( onDefCommandHandler ),
@@ -41,6 +43,10 @@ export const Commands = {
         handler: auth( onPlayerForwardResultCommandHandler ),
         regex: onPlayerForwardResultCommandRegex
     },
+    Players: {
+        handler: auth( onPlayersCommandHandler ),
+        regex: onPlayersCommandRegex
+    },
     Rae: {
         handler: auth( onRaeCommandHandler ),
         regex: onRaeCommandRegex
@@ -53,12 +59,18 @@ export const Commands = {
         handler: auth( onStartCommandHandler ),
         regex: onStartCommandRegex
     },
+    Word: {
+        handler: auth(onWordCommandHandler),
+        regex: onWordCommandRegex
+    },
+
+    // Easter eggs
+    Dance: {
+        handler: auth(onDanceCommandHandler),
+        regex: onDanceCommandRegex
+    },
     Winner: {
         handler: auth( onWinnerCommandHandler ),
         regex: onWinnerCommandRegex
-    },
-    Word: {
-        handler: auth( onWordCommandHandler ),
-        regex: onWordCommandRegex
     },
 }

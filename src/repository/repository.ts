@@ -10,6 +10,11 @@ export async function getPlayerResults() {
     return await PlayerResultModel.find()
 }
 
+type PlayerResultRemoveParams = Pick<IPlayerResult, 'gameId' | 'playerId'>
+export async function removePlayerResult({ playerId, gameId }: PlayerResultRemoveParams) {
+    return await PlayerResultModel.deleteOne( { playerId, gameId })
+}
+
 export async function getWords() {
     return await WordModel.find()
 }
