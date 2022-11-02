@@ -3,6 +3,7 @@ import './lib/db'
 
 import { Commands } from './commands'
 
+import { scheduleZumbaDehesa, scheduleZumbaVina } from './schedulersZumba'
 import { scheduleReminderToPlay, scheduleSendDailyReport, scheduleUpdateWordOfTheDay } from './schedulers'
 
 import { getChampionshipData, getChampionshipResultsByPlayerIdToString } from './services/championship'
@@ -10,7 +11,13 @@ import { sendDailyReport, sendEndOfChampionshipMessage } from './services/sender
 
 import { sendMessage } from './bot/sendMessage'
 import { bot } from './bot/bot'
-import { ADMIN_ID } from './config/config'
+import { ADMIN_ID, WORDLE_TYPE } from './config/config'
+
+// schedule zumba timers (only with NORMAL bot to avoid duplications)
+if (WORDLE_TYPE === 'NORMAL') {
+    scheduleZumbaVina()
+    scheduleZumbaDehesa()
+}
 
 // Schedule reminders and send daily reports
 scheduleReminderToPlay()

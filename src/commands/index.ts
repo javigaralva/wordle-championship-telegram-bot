@@ -13,6 +13,8 @@ import { onWordCommandHandler, onWordCommandRegex } from './onWordCommand'
 import { onDanceCommandHandler, onDanceCommandRegex } from './easterEggs/onDanceCommand'
 import { onWinnerCommandHandler, onWinnerCommandRegex } from './easterEggs/onWinnerCommand'
 
+import { onZumbaCommandHandler, onZumbaCommandRegex } from './extras/onZumbaCommand'
+
 import { ALL_PLAYERS_IDS } from '../config/config'
 
 type CommandHandler = ( msg: TelegramBot.Message ) => Promise<TelegramBot.Message | undefined | void>
@@ -73,4 +75,10 @@ export const Commands = {
         handler: auth( onWinnerCommandHandler ),
         regex: onWinnerCommandRegex
     },
+
+    // Extras
+    Zumba: {
+        handler: auth(onZumbaCommandHandler),
+        regex: onZumbaCommandRegex
+    }
 }
