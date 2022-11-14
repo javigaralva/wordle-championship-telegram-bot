@@ -13,19 +13,19 @@
   "author": "javigaralva",
   "license": "ISC",
   "devDependencies": {
+    "@types/cron": "^2.0.0",
     "@types/he": "^1.1.2",
-    "@types/node-cron": "^3.0.5",
     "@types/node-telegram-bot-api": "^0.56.0"
   },
   "dependencies": {
     "@jodacame/raejs": "1.0.6",
     "axios": "0.26.1",
     "bs58": "5.0.0",
+    "cron": "2.1.0",
     "dotenv": "16.0.0",
     "googlethis": "1.2.7",
     "he": "1.2.0",
     "mongoose": "6.7.0",
-    "node-cron": "3.0.2",
     "node-telegram-bot-api": "0.56.0",
     "typescript": "4.8.4"
   }
