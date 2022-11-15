@@ -1,25 +1,79 @@
+import axios from 'axios'
 import { CronJob } from 'cron'
 import { dispatchGithubWorkflow, ZumbaCommand } from './services/zumba'
 
 const TIMEZONE = 'Europe/Madrid'
 
-export function scheduleZumbaVina() {
-    {
-        const cronExpression = '0 0 18 * * 0'
-        console.log(`${new Date().toISOString()} >> Scheduling Zumba Vina (Sunday at 18:00) with this pattern: '${cronExpression}'`)
-        new CronJob(cronExpression, handleVinaReservation, null, true, TIMEZONE )
+const cronJobs: CronJob[] = []
+let zumbaWatcherJob: CronJob
+
+export function scheduleZumbaClasses() {
+    if (zumbaWatcherJob) {
+        console.log('Stopping zumbaWatcherJob')
+        zumbaWatcherJob.stop()
     }
-    {
-        const cronExpression = '0 0 19 * * 2'
-        console.log(`${new Date().toISOString()} >> Scheduling Zumba Vina (Tuesday at 19:00) with this pattern: '${cronExpression}'`)
-        new CronJob(cronExpression, handleVinaReservation, null, true, TIMEZONE)
+    const zumbaWatcherJobExpression = '0 50 8,17 * * *'
+    console.log(`Scheduling zumbaWatcherJob with this expression: ${zumbaWatcherJobExpression}`)
+    zumbaWatcherJob = new CronJob(zumbaWatcherJobExpression, scheduleZumbaClassesInternal, null, true, TIMEZONE)
+    printNextDates(zumbaWatcherJob)
+
+    console.log(`Calling to scheduleZumbaClassesInternal`)
+    scheduleZumbaClassesInternal()
+}
+
+function printNextDates(job: CronJob, howMany: number = 10) {
+    console.log(`${JSON.stringify(job.nextDates(howMany), null, 2)}`)
+}
+
+function scheduleZumbaClassesInternal() {
+    console.log('Re-Scheduling Zumba classes')
+    stopAndClearCronJobs()
+    fetchZumbaConfig()
+        .then(config => {
+            scheduleZumbaVina(config?.vina.SCHEDULERS)
+            scheduleZumbaDehesa(config?.dehesa.SCHEDULERS)
+        })
+}
+
+function stopAndClearCronJobs() {
+    for (const cronJob of cronJobs) {
+        cronJob.stop()
+    }
+    cronJobs.length = 0
+}
+
+async function fetchZumbaConfig() {
+    try {
+        const url = 'https://raw.githubusercontent.com/javigaralva/zumba-reservation/main/config/config.json'
+
+        console.log(`Fetching Zumba config (${url}) ...`)
+        const response = await axios.get(url)
+        return response?.data
+    }
+    catch (error) {
+        console.error('Error fetching Zumba Config')
     }
 }
 
-export function scheduleZumbaDehesa() {
-    const cronExpression = '0 0 22 * * 0'
-    console.log(`${new Date().toISOString()} >> Scheduling Zumba Dehesa (Sunday at 22:00) with this pattern: '${cronExpression}'`)
-    new CronJob(cronExpression, handleDehesaReservation, null, true, TIMEZONE)
+const DEFAULT_VINA_SCHEDULERS = ['0 0 18 * * 0', '0 0 19 * * 2']
+function scheduleZumbaVina(cronExpressions: string[] = DEFAULT_VINA_SCHEDULERS) {
+    console.log(`${new Date().toISOString()} >> Scheduling Zumba Vina...`)
+    schedule(cronExpressions, handleVinaReservation)
+}
+
+const DEFAULT_DEHESA_SCHEDULERS = ['0 0 22 * * 0']
+function scheduleZumbaDehesa(cronExpressions: string[] = DEFAULT_DEHESA_SCHEDULERS) {
+    console.log(`${new Date().toISOString()} >> Scheduling Zumba Dehesa...`)
+    schedule(cronExpressions, handleDehesaReservation)
+}
+
+function schedule(cronExpressions: string[] = [], handler: () => Promise<void>) {
+    for (const cronExpression of cronExpressions) {
+        console.log(`${new Date().toISOString()} - Scheduling with this pattern: '${cronExpression}'`)
+        const job = new CronJob(cronExpression, handler, null, true, TIMEZONE)
+        cronJobs.push(job)
+        printNextDates(zumbaWatcherJob)
+    }
 }
 
 async function handleVinaReservation() {
