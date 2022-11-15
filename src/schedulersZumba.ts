@@ -30,6 +30,12 @@ function scheduleZumbaClassesInternal() {
     stopAndClearCronJobs()
     fetchZumbaConfig()
         .then(config => {
+            config?.vina.SCHEDULERS
+                ? console.log(`Vina Schedulers: ${JSON.stringify(config.vina.SCHEDULERS)}`)
+                : console.error(`Can't find schedulers in config for Vina` )
+            config?.dehesa.SCHEDULERS
+                ? console.log(`Dehesa Schedulers: ${JSON.stringify(config.dehesa.SCHEDULERS)}`)
+                : console.error(`Can't find schedulers in config for Dehesa` )
             scheduleZumbaVina(config?.vina.SCHEDULERS)
             scheduleZumbaDehesa(config?.dehesa.SCHEDULERS)
         })
