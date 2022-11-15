@@ -72,7 +72,7 @@ function schedule(cronExpressions: string[] = [], handler: () => Promise<void>) 
         console.log(`${new Date().toISOString()} - Scheduling with this pattern: '${cronExpression}'`)
         const job = new CronJob(cronExpression, handler, null, true, TIMEZONE)
         cronJobs.push(job)
-        printNextDates(zumbaWatcherJob)
+        printNextDates(job)
     }
 }
 
