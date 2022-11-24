@@ -14,9 +14,9 @@ import { bot } from './bot/bot'
 import { ADMIN_ID, WORDLE_TYPE } from './config/config'
 
 // schedule zumba timers (only with NORMAL bot to avoid duplications)
-// if (WORDLE_TYPE === 'NORMAL') {
-//     scheduleZumbaClasses()
-// }
+if (WORDLE_TYPE === 'NORMAL') {
+    scheduleZumbaClasses()
+}
 
 // Schedule reminders and send daily reports
 scheduleReminderToPlay()

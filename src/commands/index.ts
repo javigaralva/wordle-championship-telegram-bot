@@ -77,8 +77,8 @@ export const Commands = {
     },
 
     // Extras
-    // Zumba: {
-    //     handler: auth(onZumbaCommandHandler),
-    //     regex: onZumbaCommandRegex
-    // }
+    Zumba: {
+        handler: auth(onZumbaCommandHandler),
+        regex: onZumbaCommandRegex
+    }
 }
