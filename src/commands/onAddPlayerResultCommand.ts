@@ -14,7 +14,7 @@ type ParsedInput = {
     isRemove: boolean,
 }
 
-export const onAddPlayerResultCommandRegex = /#add ((?<gameId>\d+) (?<playerId>\d+) (?<attempts>(\d+|[xX]|remove)))/gm
+export const onAddPlayerResultCommandRegex = /#add ((?<gameId>\d+) (?<playerId>\d+) (?<attempts>(\d+|remove)))/gm
 
 export async function onAddPlayerResultCommandHandler(msg: TelegramBot.Message) {
 
@@ -59,7 +59,7 @@ function parseInput({ gameId, playerId, attempts }: any): ParsedInput {
         isRemove: attempts === 'remove',
         gameId: Number(gameId),
         playerId: Number(playerId),
-        attempts: attempts === 'X' || attempts === 'x' ? 0 : parseInt(attempts),
+        attempts: parseInt(attempts),
     }
 }
 
@@ -67,6 +67,6 @@ function isCommandValid({ gameId, playerId, attempts }: any) {
     return (
         gameId > 0 &&
         playerId > 0 &&
-        (attempts > 0 || attempts === 'x' || attempts === 'X' || attempts === 'remove')
+        (attempts >= 0 || attempts === 'remove')
     )
 }
