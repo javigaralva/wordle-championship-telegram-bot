@@ -127,7 +127,7 @@ async function fetchWordFromGithub( gameId: number ) {
         return parseGitHubResponseData( { data: response.data, gameId } )
     }
     catch( error ) {
-        console.error( 'Error fetching the word of the day' )
+        console.error( 'Error fetching the word of the day: ', error )
     }
 }
 
