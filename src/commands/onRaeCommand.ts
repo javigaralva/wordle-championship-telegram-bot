@@ -21,17 +21,36 @@ export async function onRaeCommandHandler( msg: TelegramBot.Message ) {
     const searchUpperCase = word.toUpperCase()
     const message = await sendMessage( msg.chat.id, `Buscando en la RAE *${searchUpperCase}*...` )
 
-    let text = await getRaeDefinitions( word )
+    let text: string = await getRaeDefinitions(word)
     text = text
         ? `${text}\n🔗 https://dle.rae.es/${word}`
-        : `❌ *No hay datos sobre ${searchUpperCase} en la RAE.*\n¿Has olvidado la tilde? 😅\nAdemás, recuerda que no puedes buscar tiempos verbales ni plurales ☝️🤓`
+        : `❌ *No hay datos sobre ${searchUpperCase} en la RAE.*`
 
-
-    await bot.editMessageText( text, {
-        chat_id: msg.chat.id,
-        message_id: message.message_id,
-        parse_mode: 'Markdown',
-        disable_web_page_preview: true
-    } )
+    const MAX_TELEGRAM_MESSAGE = 4000
+    let textReminder = text
+    let messageToSend: string
+    let isFirstTime = true
+    do {
+        messageToSend = textReminder.slice(0, MAX_TELEGRAM_MESSAGE)
+        textReminder = textReminder.slice(MAX_TELEGRAM_MESSAGE)
+        if (textReminder.length > 0) {
+            for (let i = messageToSend.length - 1; i >= 0; i--) {
+                const char = messageToSend[i]
+                if (char === '\n') break
+                textReminder = char + textReminder
+                messageToSend = messageToSend.slice(0, i)
+            }
+        }
+        isFirstTime
+            ? await bot.editMessageText(messageToSend, {
+                chat_id: msg.chat.id,
+                message_id: message.message_id,
+                parse_mode: 'Markdown',
+                disable_web_page_preview: true
+            })
+            : await sendMessage(msg.chat.id, messageToSend)
+        isFirstTime = false
+    }
+    while (textReminder.length > 0)
 
 }
