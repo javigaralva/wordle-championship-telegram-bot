@@ -42,3 +42,7 @@ export function memoizeAsync<T extends ( ...args: any[] ) => Promise<any>>( fn: 
         return result
     }
 }
+
+export function removeAccents(str: string) {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+}

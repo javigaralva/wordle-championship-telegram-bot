@@ -37,7 +37,8 @@ export async function onHelpCommandHandler( msg: TelegramBot.Message ) {
         '  /ayuda: Muestra esta ayuda.\n' +
         '  /resultados: Muestra los resultados del campeonato (ver NOTA1).\n' +
         '  /def *concepto*: Muestra la definición de un concepto.\n' +
-        '  /rae *palabra*: Muestras las definiciones en la RAE sobre la palabra.\n' +
+        '  /rae *palabra*: Muestra las definiciones en la RAE sobre la palabra.\n' +
+        '  /jugada *palabra*: Muestra si una palabra ya ha sido jugada en otra partida anterior.\n' +
         '\n' +
         '*NOTA1:* El siguiente ejemplo muestra el esquema de una cabecera de un resultado de juego:\n' +
         '\n' +

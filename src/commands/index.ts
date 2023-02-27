@@ -9,6 +9,7 @@ import { onRaeCommandHandler, onRaeCommandRegex } from './onRaeCommand'
 import { onResultsCommandsHandler, onResultsCommandsRegex } from './onResultsCommand'
 import { onStartCommandHandler, onStartCommandRegex } from './onStartCommand'
 import { onWordCommandHandler, onWordCommandRegex } from './onWordCommand'
+import { onWordPlayedCommandHandler, onWordPlayedCommandRegex } from './onWordPlayedCommand'
 
 import { onDanceCommandHandler, onDanceCommandRegex } from './easterEggs/onDanceCommand'
 import { onWinnerCommandHandler, onWinnerCommandRegex } from './easterEggs/onWinnerCommand'
@@ -64,6 +65,10 @@ export const Commands = {
     Word: {
         handler: auth(onWordCommandHandler),
         regex: onWordCommandRegex
+    },
+    WordPlayed: {
+        handler: auth(onWordPlayedCommandHandler),
+        regex: onWordPlayedCommandRegex
     },
 
     // Easter eggs
