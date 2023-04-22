@@ -43,6 +43,22 @@ export function memoizeAsync<T extends ( ...args: any[] ) => Promise<any>>( fn: 
     }
 }
 
+const ACCENTS_MAP:  { [ key: string ]: string } = {
+    'á': 'a',
+    'é': 'e',
+    'í': 'i',
+    'ó': 'o',
+    'ú': 'u',
+    'ü': 'u',
+    'Á': 'A',
+    'É': 'E',
+    'Í': 'I',
+    'Ó': 'O',
+    'Ú': 'U',
+    'Ü': 'U',
+}
 export function removeAccents(str: string) {
-    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    return str
+        .normalize('NFD')
+        .replace(/[áéíóúüÁÉÍÓÚÜ]/g, match => ACCENTS_MAP[match] ?? match )
 }
