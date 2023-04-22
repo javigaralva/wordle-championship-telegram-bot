@@ -58,7 +58,5 @@ const ACCENTS_MAP:  { [ key: string ]: string } = {
     'Ü': 'U',
 }
 export function removeAccents(str: string) {
-    return str
-        .normalize('NFD')
-        .replace(/[áéíóúüÁÉÍÓÚÜ]/g, match => ACCENTS_MAP[match] ?? match )
+    return str.replace(/[áéíóúüÁÉÍÓÚÜ]/g, match => ACCENTS_MAP[match] ?? match )
 }
