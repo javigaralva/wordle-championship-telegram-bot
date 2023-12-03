@@ -8,25 +8,6 @@ let tadoWatcherJob: CronJob
 const tado = new Tado()
 let homeId: number
 
-async function loginTado() {
-    try {
-        const username = process.env.TADO_USERNAME;
-        const password = process.env.TADO_PASSWORD;
-        console.log("username", username)
-        if (!username || !password) {
-            return console.warn('No TADO username or password provied. Check TADO_USERNAME/TADO_PASSWORD env variables')
-        }
-        await tado.login(username, password)
-        console.log('Logged in Tado')
-        
-        const getMeResponse = await tado.getMe();
-        homeId = getMeResponse.homes[0].id
-        console.log('HomeId: ', homeId)
-    } catch(error) {
-        console.error(error)
-    }
-}
-
 export async function scheduleTadoAssist() {
     if (tadoWatcherJob) {
         console.log('Stopping tadoWatcherJob')
@@ -44,12 +25,31 @@ export async function scheduleTadoAssist() {
         TIMEZONE
     )
     
-    printNextDates(tadoWatcherJob)
     console.log("Login to Tado")
-    await loginTado()
+    await initTado()
 
     console.log(`Calling to handleUpdateTadoPresence`)
     await handleUpdateTadoPresence()
+}
+
+async function initTado() {
+    try {
+        const username = process.env.TADO_USERNAME;
+        const password = process.env.TADO_PASSWORD;
+
+        if (!username || !password) {
+            return console.warn('No TADO username or password provied. Check TADO_USERNAME/TADO_PASSWORD env variables')
+        }
+        await tado.login(username, password)
+        console.log('Logged in Tado')
+        
+        const getMeResponse = await tado.getMe();
+        homeId = getMeResponse.homes[0].id
+        console.log('Tado HomeId: ', homeId)
+
+    } catch(error) {
+        console.error(error)
+    }
 }
 
 function printNextDates(job: CronJob, howMany: number = 10) {
@@ -58,9 +58,7 @@ function printNextDates(job: CronJob, howMany: number = 10) {
 
 async function handleUpdateTadoPresence() {
     try {
-        console.log('handleUpdateTadoPresence')
-        const updatePresenceResponse = await tado.updatePresence(homeId)
-        console.log(`updatePresenceResponse="${updatePresenceResponse}"`)  
+        await tado.updatePresence(homeId)
     } catch (error) {
         console.error(error)
     }
