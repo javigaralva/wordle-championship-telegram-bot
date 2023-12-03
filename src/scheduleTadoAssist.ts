@@ -7,7 +7,8 @@ let tadoWatcherJob: CronJob
 
 const tado = new Tado()
 let homeId: number
-;(async () => {
+
+async function loginTado() {
     try {
         const username = process.env.TADO_USERNAME;
         const password = process.env.TADO_PASSWORD;
@@ -24,9 +25,9 @@ let homeId: number
     } catch(error) {
         console.error(error)
     }
-})()
+}
 
-export function scheduleTadoAssist() {
+export async function scheduleTadoAssist() {
     if (tadoWatcherJob) {
         console.log('Stopping tadoWatcherJob')
         tadoWatcherJob.stop()
@@ -44,9 +45,11 @@ export function scheduleTadoAssist() {
     )
     
     printNextDates(tadoWatcherJob)
+    console.log("Login to Tado")
+    await loginTado()
 
     console.log(`Calling to handleUpdateTadoPresence`)
-    handleUpdateTadoPresence()
+    await handleUpdateTadoPresence()
 }
 
 function printNextDates(job: CronJob, howMany: number = 10) {
@@ -54,8 +57,8 @@ function printNextDates(job: CronJob, howMany: number = 10) {
 }
 
 async function handleUpdateTadoPresence() {
-
     try {
+        console.log('handleUpdateTadoPresence')
         const updatePresenceResponse = await tado.updatePresence(homeId)
         console.log(`updatePresenceResponse="${updatePresenceResponse}"`)  
     } catch (error) {
