@@ -8,18 +8,22 @@ let tadoWatcherJob: CronJob
 const tado = new Tado()
 let homeId: number
 ;(async () => {
-
-    const username = process.env.TADO_USERNAME;
-    const password = process.env.TADO_PASSWORD;
-    if (!username || !password) {
-        return console.warn('No TADO username or password provied. Check TADO_USERNAME/TADO_PASSWORD env variables')
+    try {
+        const username = process.env.TADO_USERNAME;
+        const password = process.env.TADO_PASSWORD;
+        console.log("username", username)
+        if (!username || !password) {
+            return console.warn('No TADO username or password provied. Check TADO_USERNAME/TADO_PASSWORD env variables')
+        }
+        await tado.login(username, password)
+        console.log('Logged in Tado')
+        
+        const getMeResponse = await tado.getMe();
+        homeId = getMeResponse.homes[0].id
+        console.log('HomeId: ', homeId)
+    } catch(error) {
+        console.error(error)
     }
-    await tado.login(username, password)
-    console.log('Logged in in Tado')
-    
-    const getMeResponse = await tado.getMe();
-    homeId = getMeResponse.homes[0].id
-    console.log('HomeId: ', homeId)
 })()
 
 export function scheduleTadoAssist() {
@@ -50,6 +54,11 @@ function printNextDates(job: CronJob, howMany: number = 10) {
 }
 
 async function handleUpdateTadoPresence() {
-    const updatePresenceResponse = await tado.updatePresence(homeId)
-    console.log(`updatePresenceResponse="${updatePresenceResponse}"`)
+
+    try {
+        const updatePresenceResponse = await tado.updatePresence(homeId)
+        console.log(`updatePresenceResponse="${updatePresenceResponse}"`)  
+    } catch (error) {
+        console.error(error)
+    }
 }
