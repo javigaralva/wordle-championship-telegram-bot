@@ -16,9 +16,9 @@ type ParsedResult = {
 }
 
 export const onPlayerForwardResultCommandRegex = {
-    NORMAL: /La palabra del día\s+#(\d+) (\d|X)\/6/igm,
-    ACCENT: /La palabra del día Modo Tildes\s+#(\d+) (\d|X)\/6/igm,
-    SCIENCE: /La palabra científica\s+#(\d+) (\d|X)\/6/igm,
+    NORMAL: /La palabra del d[í|i]a\s+#(\d+) (\d|X)\/6/igm,
+    ACCENT: /La palabra del d[í|i]a Modo Tildes\s+#(\d+) (\d|X)\/6/igm,
+    SCIENCE: /La palabra cient[í|i]fica\s+#(\d+) (\d|X)\/6/igm,
 }[ WORDLE_TYPE ]
 
 export async function onPlayerForwardResultCommandHandler( msg: TelegramBot.Message ) {
