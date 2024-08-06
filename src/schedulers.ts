@@ -135,26 +135,6 @@ function parseGitHubResponseData( { data, gameId }: { data: { gameId: number, wo
     return data.find( ( { gameId: id } ) => id === gameId )?.word
 }
 
-async function fetchWordFromGameReactor( gameId: number ) {
-    try {
-        const url = `https://www.gamereactor.es/wordle-${gameId + 201}-y-wordle-es-${gameId}-solucion-con-la-palabra-del-reto-de-hoy/`
-        console.log( `Fetching word of the day (${url}) ...` )
-        const response = await axios.get( url )
-        if( !response?.data ) return
-
-        return parseGameReactorResponseData( response.data )
-    }
-    catch( error ) {
-        console.error( 'Error fetching the word of the day' )
-    }
-}
-
-function parseGameReactorResponseData( data: string ): string | undefined {
-    const match = data.matchAll( /solución del reto de Wordle hoy, es (?<word>.{5})/gm )
-    const { groups: { word } } = match.next().value ?? { groups: { word: undefined } }
-    return word?.toLowerCase()
-}
-
 async function getPlayersIdsThatDidNotPlayToday() {
     const todaysGameId = getTodaysGameId()
     const { championshipPlayers, championshipResults } = await getChampionshipData()
