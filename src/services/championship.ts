@@ -185,7 +185,15 @@ export function getChampionshipRanking(
                 finalScore
             }
         } )
-        .sort( ( a, b ) => b.finalScore - a.finalScore )
+        .sort( ( a, b ) => {
+            // Sort first by finalScore in descending order
+            if (b.finalScore !== a.finalScore) {
+                return b.finalScore - a.finalScore; 
+            }
+
+             // In case of a tie in finalScore, sort by attemptsAvg in ascending order
+            return a.attemptsAvg - b.attemptsAvg; 
+        } )
 
     return playersFinalScore
 }
