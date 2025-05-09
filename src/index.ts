@@ -16,8 +16,8 @@ import { ADMIN_ID, WORDLE_TYPE } from './config/config'
 
 // schedule zumba timers (only with NORMAL bot to avoid duplications)
 if (WORDLE_TYPE === 'NORMAL') {
-    scheduleZumbaClasses()
-    scheduleTadoAssist()
+    // scheduleZumbaClasses()
+    // scheduleTadoAssist()
 }
 
 // Schedule reminders and send daily reports
