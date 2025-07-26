@@ -91,14 +91,14 @@ export async function getChampionshipResultsByGameToString( { championshipResult
 
         if( gameId > currentGameId ) continue
 
-        const playerResults = championshipResults.filter( playerResult => playerResult.gameId === gameId )
+        const playersResults = championshipResults.filter( playerResult => playerResult.gameId === gameId )
 
         const word = championshipWords.find( word => word.gameId === gameId )
         const gameWord = ( word?.word ?? '' )
 
         const gameWordString = gameWord ? `- *${gameWord.toUpperCase()}*` : ''
         const gameIdHeader = `*#${gameId}* (${getDayOfTheWeekFromGameId( gameId )}) ${gameWordString}`
-        if( !playerResults.length ) {
+        if( !playersResults.length ) {
             text += `${gameIdHeader}\n*  🚫 sin resultados*\n\n`
             continue
         }
@@ -106,7 +106,7 @@ export async function getChampionshipResultsByGameToString( { championshipResult
         let totalWordScore = 0
         let totalAttempts = 0
         const gameResultsByPlayer = []
-        for( const playerResult of playerResults ) {
+        for( const playerResult of playersResults ) {
             const player = players.find( player => player.id === playerResult.playerId )
             if( !player ) continue
 
