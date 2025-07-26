@@ -26,7 +26,7 @@ export function createOrUpdatePlayer( player: IPlayer ) {
     return Repository.createOrUpdatePlayer( player )
 }
 
-export function findPlayerResultsByGameId( gameId: number ) {
+export function getPlayerResultsByGameId( gameId: number ) {
     return Repository.findPlayerResultsByGameId( gameId )
 }
 
@@ -211,14 +211,14 @@ export function getChampionshipGameIdsRangeFromDate( date: Date = new Date() ): 
 }
 
 export async function haveAllPlayersPlayedThis( gameId: number ) {
-    const todayPlayerResults = await findPlayerResultsByGameId( gameId )
+    const todayPlayerResults = await getPlayerResultsByGameId( gameId )
     const todayPlayerIds = todayPlayerResults.map( result => result.playerId )
     const allPlayersHavePlayed = intersection( ALL_PLAYERS_IDS, todayPlayerIds ).length === ALL_PLAYERS_IDS.length
     return allPlayersHavePlayed
 }
 
 export async function havePlayerIdPlayedThis( gameId: number, playerId: number ) {
-    const playerResults = await findPlayerResultsByGameId( gameId )
+    const playerResults = await getPlayerResultsByGameId( gameId )
     return playerResults.some( result => result.playerId === playerId )
 }
 
