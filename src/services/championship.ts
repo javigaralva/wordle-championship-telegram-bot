@@ -103,6 +103,30 @@ export async function getChampionshipResultsByGameToString( { championshipResult
             continue
         }
 
+        const { avgAttempts, gameResultsByPlayer } = getStatsFor({ playersResults, players })
+        
+        let definitions = ''
+        if( USE_WORDS_LINKS ) {
+            const encodedWord = encodeText( gameWord )
+            definitions = gameWord ? `✍️ /d\\_${encodedWord} | 📚 /r\\_${encodedWord}` : ''
+        }
+
+        const gameIdHeaderWithScore = `${gameIdHeader} | *${avgAttempts}*/6 ${definitions ? `\n${definitions}` : ''}`
+
+        text += `${gameIdHeaderWithScore}\n`
+
+        text += gameResultsByPlayer
+            .sort( ( a, b ) => b.score - a.score )
+            .map( resultByPlayer => `  *${getNameWithAvatar( resultByPlayer.player )}*: ${attemptsToString( resultByPlayer.attempts )}/6 (${resultByPlayer.score} puntos)` )
+            .join( '\n' )
+
+        text += '\n\n'
+    }
+
+    return text
+}
+
+function getStatsFor( { playersResults, players }: { playersResults: IPlayerResult[], players: IPlayer[] } ) {
         let totalWordScore = 0
         let totalAttempts = 0
         const gameResultsByPlayer = []
@@ -127,25 +151,11 @@ export async function getChampionshipResultsByGameToString( { championshipResult
         const avgWordScore = ( totalWordScore / gameResultsByPlayer.length ).toFixed( 2 )
         const avgAttempts = ( totalAttempts / gameResultsByPlayer.length ).toFixed( 2 )
 
-        let definitions = ''
-        if( USE_WORDS_LINKS ) {
-            const encodedWord = encodeText( gameWord )
-            definitions = gameWord ? `✍️ /d\\_${encodedWord} | 📚 /r\\_${encodedWord}` : ''
+    return {
+        avgWordScore,
+        avgAttempts,
+        gameResultsByPlayer
         }
-
-        const gameIdHeaderWithScore = `${gameIdHeader} | *${avgAttempts}*/6 ${definitions ? `\n${definitions}` : ''}`
-
-        text += `${gameIdHeaderWithScore}\n`
-
-        text += gameResultsByPlayer
-            .sort( ( a, b ) => b.score - a.score )
-            .map( resultByPlayer => `  *${getNameWithAvatar( resultByPlayer.player )}*: ${attemptsToString( resultByPlayer.attempts )}/6 (${resultByPlayer.score} puntos)` )
-            .join( '\n' )
-
-        text += '\n\n'
-    }
-
-    return text
 }
 
 export async function getChampionshipResultsByPlayerIdToString( playerId: number ) {
