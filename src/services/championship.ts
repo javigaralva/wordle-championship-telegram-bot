@@ -158,15 +158,17 @@ export async function getChampionshipResultsByPlayerIdToString( playerId: number
     return `*TUS RESULTADOS* 📝\n${gameResultsToString}\n\n*TOTAL: ${totalScore} puntos*`
 }
 
-async function getResultsByPlayerIdInRange( playerId: number, gameIdsRange: GameIdsRange ) {
+export async function getResultsByPlayerIdInRange( playerId: number, gameIdsRange: GameIdsRange ) {
 
     const playerResults = await Repository.findPlayerResultsByPlayerIdInRange( playerId, gameIdsRange )
 
-    return playerResults.map( result => ( {
-        gameId: result.gameId,
-        attempts: result.attempts,
-        score: getScore( result.attempts ),
-    } ) )
+    return playerResults
+        .sort( ( a, b ) => a.gameId - b.gameId )
+        .map( result => ( {
+            gameId: result.gameId,
+            attempts: result.attempts,
+            score: getScore( result.attempts ),
+        } ) )
 
 }
 
