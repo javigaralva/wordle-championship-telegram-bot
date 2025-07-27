@@ -5,7 +5,7 @@ import { getTodaysGameId, WORDLE_START_DATE } from './services/gameUtilities'
 import { ADMIN_ID, ALL_PLAYERS_IDS, WORDLE_TYPE } from './config/config'
 import { sendMessage } from './bot/sendMessage'
 import { sendReport } from './services/senders'
-import { getChampionshipData, getWordByGameId } from './services/championship'
+import { getChampionshipData, getChampionshipResults, getPendingChampionshipGamesForPlayerIdToString, getWordByGameId } from './services/championship'
 import { difference } from './utils'
 import { addWord } from './services/admin'
 
@@ -45,11 +45,22 @@ function makeDailyScheduler( { hourUTC, minuteUTC, name, handler }: { hourUTC: n
 async function handleReminderToPlay() {
     const playersIdsToRemind = await getPlayersIdsThatDidNotPlayToday()
 
+    const championshipResults = await getChampionshipResults()
     for( const playerIdsToRemind of playersIdsToRemind ) {
         const player = await getPlayer( playerIdsToRemind )
         if( !player )
             continue
-        await sendMessage( player.id, `*💔 ${player.name}, aún no has participado*.\n¡Ánimo y juega para no quedarte descolgado del campeonato!` )
+
+        const pendingChampionshipGames = getPendingChampionshipGamesForPlayerIdToString({ 
+            championshipResults, 
+            playerId: player.id 
+        })
+        await sendMessage( player.id, [
+            `*💔 ${player.name}, aún no has participado*.`, 
+            `¡Ánimo y juega para no quedarte descolgado del campeonato!`,
+            '',
+            pendingChampionshipGames
+        ].join( '\n' ) )
     }
 
     // Schedule next reminder

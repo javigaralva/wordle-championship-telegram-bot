@@ -1,13 +1,12 @@
 import { getDateFromGameId, getNameWithAvatar } from './gameUtilities'
-import { ChampionshipData, getChampionshipData, haveAllPlayersPlayedThis } from './championship'
+import { ChampionshipData, getChampionshipData, getChampionshipDataForPlayerId, haveAllPlayersPlayedThis } from './championship'
 import { bot } from '../bot/bot'
 import { sendMessage } from '../bot/sendMessage'
 import { findWordByGameId } from '../repository/repository'
 import { getGoogleDefinitionsAndExamplesFor } from './googleDefinitions'
-import { sleep } from '../utils'
 
 export async function sendChampionshipReportTo( todaysGameId: number, playerId: number, silent = false ) {
-    const { championshipString } = await getChampionshipData()
+    const { championshipString } = await getChampionshipDataForPlayerId({ playerId })
 
     const championshipStringToSend = await haveAllPlayersPlayedThis( todaysGameId )
         ? championshipString
@@ -16,22 +15,17 @@ export async function sendChampionshipReportTo( todaysGameId: number, playerId: 
     await sendMessage( playerId, championshipStringToSend, silent )
 }
 
-export async function sendReport( todaysGameId: number, silent = false, championshipData?: ChampionshipData ) {
-    championshipData ??= await getChampionshipData()
-
-    await sendDefinitionsAndExamples( todaysGameId, silent, championshipData )
-    await sleep( 4000 )
-
+export async function sendReport( todaysGameId: number, silent = false ) {
     const isSunday = getDateFromGameId( todaysGameId ).getDay() === 0
     isSunday
-        ? await sendEndOfChampionshipMessage( silent, championshipData )
-        : await sendDailyReport( silent, championshipData )
+        ? await sendEndOfChampionshipMessage( silent )
+        : await sendDailyReport( silent )
 }
 
-export async function sendDailyReport( silent = false, championshipData?: ChampionshipData ) {
-    championshipData ??= await getChampionshipData()
-    const { championshipString, championshipPlayers } = championshipData
+export async function sendDailyReport( silent = false ) {
+    const { championshipPlayers } = await getChampionshipData()
     for( const player of championshipPlayers ) {
+        const { championshipString } = await getChampionshipDataForPlayerId({ playerId: player.id })
         await sendMessage( player.id, championshipString, silent )
     }
 }
