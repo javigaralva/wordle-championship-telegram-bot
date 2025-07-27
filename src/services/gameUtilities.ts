@@ -71,3 +71,25 @@ const ICONS_BY_POSITION = [ , '🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6�
 export function getIconByPosition( index: number ) {
     return ICONS_BY_POSITION[ index ] ?? `  ${index}. `
 }
+
+
+const WORDLE_BASE_URL = 'https://lapalabradeldia.com'
+
+const WORDLE_ARCHIVE_SEGMENT_URL = {
+    NORMAL  : 'normal',
+    ACCENT  : 'tildes',
+    SCIENCE : 'ciencia',
+}[ WORDLE_TYPE ]
+
+const WORDLE_CURRENT_PLAY_SEGMENT_URL = {
+    NORMAL  : '',
+    ACCENT  : 'tildes',
+    SCIENCE : 'ciencia',
+}[ WORDLE_TYPE ]
+
+export function getGameUrl( gameId: number ) {
+    const todaysGameId = getTodaysGameId()
+    return todaysGameId === gameId 
+        ? `${WORDLE_BASE_URL}/${WORDLE_CURRENT_PLAY_SEGMENT_URL}`
+        : `${WORDLE_BASE_URL}/archivo/${WORDLE_ARCHIVE_SEGMENT_URL}/${gameId}/`
+}

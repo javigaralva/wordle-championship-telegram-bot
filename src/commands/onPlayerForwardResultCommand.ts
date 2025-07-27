@@ -1,7 +1,14 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { IPlayer } from '../models/Player'
 import { IPlayerResult } from '../models/Result'
-import { createOrUpdatePlayer, haveAllPlayersPlayedThis, havePlayerIdPlayedThis, setPlayerResult } from '../services/championship'
+import { 
+    createOrUpdatePlayer, 
+    getChampionshipGameIdsRangeFromDate, 
+    getResultsByPlayerIdInRange,
+    haveAllPlayersPlayedSoFar,
+    havePlayerIdPlayedThis, 
+    setPlayerResult, 
+} from '../services/championship'
 import { attemptsToString, getNameWithAvatar, getTodaysGameId } from '../services/gameUtilities'
 import { getScore } from '../services/score'
 import { getRandomAvatar } from '../utils'
@@ -16,8 +23,8 @@ type ParsedResult = {
 }
 
 export const onPlayerForwardResultCommandRegex = {
-    NORMAL: /La palabra del d[í|i]a\s+#(\d+) (\d|X)\/6/igm,
-    ACCENT: /La palabra del d[í|i]a Modo Tildes\s+#(\d+) (\d|X)\/6/igm,
+    NORMAL: /La palabra del d[í|i]a (?:Archivo)?\s*#(\d+) (\d|X)\/6/igm,
+    ACCENT: /La palabra del d[í|i]a (?:Modo|Archivo) Tildes\s+#(\d+) (\d|X)\/6/igm,
     SCIENCE: /La palabra cient[í|i]fica\s+#(\d+) (\d|X)\/6/igm,
 }[ WORDLE_TYPE ]
 
@@ -40,9 +47,20 @@ export async function onPlayerForwardResultCommandHandler( msg: TelegramBot.Mess
     }
 
     const { gameId, attempts } = parsedResult
+    const gameIdsRange = getChampionshipGameIdsRangeFromDate()
     const todaysGameId = getTodaysGameId()
-    if( gameId !== todaysGameId ) {
+
+    if( gameId < gameIdsRange[0] || gameId > gameIdsRange[1] ) {
+        return await sendMessage( id, `*🚫 Resultado no aceptado.* El juego *#${gameId}* no es parte del campeonato actual. El rango de juegos es *#${gameIdsRange[0]}* a *#${gameIdsRange[1]}*.` )
+    }    
+    if( gameId > todaysGameId ) {
         return await sendMessage( id, `*🚫 Resultado no aceptado.* Has enviado el resultado para el juego #${gameId}, pero el actual es el juego *#${todaysGameId}*.` )
+    }
+
+    const playerResults = await getResultsByPlayerIdInRange(id, gameIdsRange)
+    const playerResultForGameId = playerResults.find( r => r.gameId === gameId )
+    if( playerResultForGameId ) {
+        return await sendMessage( id, `🚫 Tu resultado ya fue registrado con *${attemptsToString( playerResultForGameId.attempts )}/6* para el juego *#${playerResultForGameId.gameId}*. *Obtuviste ${playerResultForGameId.score} puntos*.` )
     }
 
     const player: IPlayer = {
@@ -69,7 +87,7 @@ export async function onPlayerForwardResultCommandHandler( msg: TelegramBot.Mess
     await sendUserPlayedNotifications( { gameId, notificationText, player } )
 
     // Send Provisional Ranking to the player, or to all players (if they have played)
-    await haveAllPlayersPlayedThis( todaysGameId )
+    await haveAllPlayersPlayedSoFar()
         ? await sendReport( todaysGameId )
         : await sendChampionshipReportTo( todaysGameId, player.id )
 }
