@@ -438,3 +438,17 @@ function calculateAvgAttempts( attempts: number[] ) {
     const totalAttempts = attempts.reduce( ( total, attempts ) => total + ( attempts === 0 ? 7 : attempts ), 0 )
     return attempts.length === 0 ? 0 : totalAttempts / attempts.length
 }
+
+export async function getMissedGamesForPlayerId( playerId: number ) {
+    const gameIdsRange = getChampionshipGameIdsRangeFromDate()
+    const playerResults = await getResultsByPlayerIdInRange( playerId, gameIdsRange )
+
+    const missedGames: number[] = []
+    for (let gameId = gameIdsRange[0]; gameId <= gameIdsRange[1]; gameId++) {
+        const playerResult = playerResults.find( ( result ) => result.gameId === gameId )
+        if (!playerResult) {
+            missedGames.push( gameId )
+        }
+    }
+    return missedGames
+}
