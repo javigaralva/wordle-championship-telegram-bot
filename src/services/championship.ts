@@ -305,7 +305,7 @@ export function getPendingChampionshipGamesForPlayerIdToString( { championshipRe
         }
     }
 
-    return text && `*⚠️ Aún tienes juegos pendientes por jugar. ¡Ánimo! 💪* \n${text}`
+    return text && `*⚠️ Aún tienes juegos pendientes por jugar. ¡Ánimo!* \n${text}`
 }
 
 export async function getChampionshipResultsByPlayerIdToString( playerId: number ) {
