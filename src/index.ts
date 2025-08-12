@@ -66,7 +66,7 @@ bot.onText( /#send final ranking/, async ( msg ) => {
 //
 bot.on( 'message', async ( msg ) => {
     console.log( `${new Date().toISOString()} >> Received message: ${JSON.stringify( msg )}` )
-
+    /*
     const text = (msg.text?.toLowerCase() ?? '').trim()
     const hasMatch = Object.values( Commands ).some( command => command.regex.test( text ) )
     if (hasMatch) return;
@@ -78,4 +78,5 @@ bot.on( 'message', async ( msg ) => {
     if(text.length > 0) {
         return await sendMessage( msg.chat.id, '*❌ Algo no ha ido bien*.\nSi querías enviar un resultado, vuelve a intentarlo 🔄. Si no funciona, prueba a usar la opción de copiar el resultado al portapapeles del Wordle y pégalo aquí 📋. Si todo eso ha fallado, habla con el administrador 🗣️. Es majo y te ayudará en lo que necesites 😉' )
     }
+    */
 } )
