@@ -18,13 +18,18 @@ const WORKFLOWS_IDS: ZumbaCommandMap = {
     'VINA': 'reserva-vina.yml',
 }
 
-export async function dispatchGithubWorkflow(command: ZumbaCommand) {
+export async function dispatchGithubWorkflow(command: ZumbaCommand, classId?: string) {
     const auth = GITHUB_TOKEN
 
     const owner = 'javigaralva'
     const repo = 'zumba-reservation'
     const ref = 'main'
     const workflowId = WORKFLOWS_IDS[command]
+
+    const data: any = { ref }
+    if (classId) {
+        data.inputs = { classId }
+    }
 
     await axios({
         method: 'post',
@@ -33,7 +38,7 @@ export async function dispatchGithubWorkflow(command: ZumbaCommand) {
             Accept: 'application/vnd.github+json',
             Authorization: `Bearer ${auth}`
         },
-        data: { ref }
+        data
     })
 
     return {

@@ -7,6 +7,22 @@ const TIMEZONE = 'Europe/Madrid'
 const cronJobs: CronJob[] = []
 let zumbaWatcherJob: CronJob
 
+interface ZumbaClass {
+    ID: string
+    SCHEDULER: string
+}
+
+interface ZumbaCenter {
+    ID: string
+    CLASSES: ZumbaClass[]
+}
+
+interface ZumbaConfig {
+    state: string
+    vina: ZumbaCenter
+    dehesa: ZumbaCenter
+}
+
 export function scheduleZumbaClasses() {
     if (zumbaWatcherJob) {
         console.log('Stopping zumbaWatcherJob')
@@ -29,15 +45,20 @@ function scheduleZumbaClassesInternal() {
     console.log('Re-Scheduling Zumba classes')
     stopAndClearCronJobs()
     fetchZumbaConfig()
-        .then(config => {
-            config?.vina.SCHEDULERS
-                ? console.log(`Vina Schedulers: ${JSON.stringify(config.vina.SCHEDULERS)}`)
-                : console.error(`Can't find schedulers in config for Vina` )
-            config?.dehesa.SCHEDULERS
-                ? console.log(`Dehesa Schedulers: ${JSON.stringify(config.dehesa.SCHEDULERS)}`)
-                : console.error(`Can't find schedulers in config for Dehesa` )
-            scheduleZumbaVina(config?.vina.SCHEDULERS)
-            scheduleZumbaDehesa(config?.dehesa.SCHEDULERS)
+        .then((config: ZumbaConfig | undefined) => {
+            if (config?.vina?.CLASSES) {
+                console.log(`Vina Schedulers: ${JSON.stringify(config.vina.CLASSES.map(c => c.SCHEDULER))}`)
+                scheduleZumba(config.vina.CLASSES, 'VINA')
+            } else {
+                console.error(`Can't find classes in config for Vina`)
+            }
+
+            if (config?.dehesa?.CLASSES) {
+                console.log(`Dehesa Schedulers: ${JSON.stringify(config.dehesa.CLASSES.map(c => c.SCHEDULER))}`)
+                scheduleZumba(config.dehesa.CLASSES, 'DEHESA')
+            } else {
+                console.error(`Can't find classes in config for Dehesa`)
+            }
         })
 }
 
@@ -48,7 +69,7 @@ function stopAndClearCronJobs() {
     cronJobs.length = 0
 }
 
-async function fetchZumbaConfig() {
+async function fetchZumbaConfig(): Promise<ZumbaConfig | undefined> {
     try {
         const url = 'https://raw.githubusercontent.com/javigaralva/zumba-reservation/main/config/config.json'
 
@@ -61,41 +82,23 @@ async function fetchZumbaConfig() {
     }
 }
 
-const DEFAULT_VINA_SCHEDULERS = ['0 0 18 * * 0', '0 0 19 * * 2']
-function scheduleZumbaVina(cronExpressions: string[] = DEFAULT_VINA_SCHEDULERS) {
-    console.log(`${new Date().toISOString()} >> Scheduling Zumba Vina...`)
-    schedule(cronExpressions, handleVinaReservation)
-}
-
-const DEFAULT_DEHESA_SCHEDULERS = ['0 0 22 * * 0']
-function scheduleZumbaDehesa(cronExpressions: string[] = DEFAULT_DEHESA_SCHEDULERS) {
-    console.log(`${new Date().toISOString()} >> Scheduling Zumba Dehesa...`)
-    schedule(cronExpressions, handleDehesaReservation)
-}
-
-function schedule(cronExpressions: string[] = [], handler: () => Promise<void>) {
-    for (const cronExpression of cronExpressions) {
-        console.log(`${new Date().toISOString()} - Scheduling with this pattern: '${cronExpression}'`)
-        const job = new CronJob(cronExpression, handler, null, true, TIMEZONE)
+function scheduleZumba(classes: ZumbaClass[] = [], command: ZumbaCommand) {
+    console.log(`${new Date().toISOString()} >> Scheduling Zumba ${command}...`)
+    for (const zumbaClass of classes) {
+        const { ID, SCHEDULER } = zumbaClass
+        console.log(`${new Date().toISOString()} - Scheduling ${command} class ${ID} with pattern: '${SCHEDULER}'`)
+        const job = new CronJob(SCHEDULER, () => handleReservation(command, ID), null, true, TIMEZONE)
         cronJobs.push(job)
         printNextDates(job)
     }
 }
 
-async function handleVinaReservation() {
-    await handleReservation('VINA')
-}
-
-async function handleDehesaReservation() {
-    await handleReservation('DEHESA')
-}
-
-async function handleReservation(command: ZumbaCommand) {
-    console.log(`Handle ${command} Reservation...`)
+async function handleReservation(command: ZumbaCommand, classId: string) {
+    console.log(`Handle ${command} Reservation for class ${classId}...`)
     try {
-        await dispatchGithubWorkflow(command)
+        await dispatchGithubWorkflow(command, classId)
     } catch (error) {
-        console.error(`Error dispatching GithubWorkflow for ${command}`)
+        console.error(`Error dispatching GithubWorkflow for ${command} (class ${classId})`)
         console.error(error)
     }
 }
