@@ -10,9 +10,9 @@ import {
     getTodaysGameId 
 } from '../services/gameUtilities'
 import { getEndOfChampionshipMessageForPlayer } from '../services/senders'
-import { getPlayer } from '../services/admin'
+import { findAuthorizedPlayerByIdentifier } from '../services/admin'
 
-export const onRankingCommandRegex = /#ranking\s+(?<userId>\d+)\s+(?<gameId>\d+)/gm
+export const onRankingCommandRegex = /#ranking\s+(?<gameId>\d+)\s+(?<playerIdentifier>.+)/gm
 
 export async function onRankingCommandHandler( msg: TelegramBot.Message ) {
     const match = onRankingCommandRegex.exec( msg.text ?? '' )
@@ -20,21 +20,21 @@ export async function onRankingCommandHandler( msg: TelegramBot.Message ) {
         return await sendInstructions(msg.chat.id)
     }
 
-    const userId = Number( match.groups.userId )
-    const gameId = Number( match.groups.gameId )
+    const { gameId, playerIdentifier } = match.groups
+    const gameIdNum = Number( gameId )
 
-    const date = getDateFromGameId( gameId )
+    const date = getDateFromGameId( gameIdNum )
     const range = getChampionshipGameIdsRangeFromDate( date )
     const todaysGameId = getTodaysGameId()
 
     // A championship is finished if the today's game ID is strictly greater than the last game ID of the championship range.
     if ( todaysGameId <= range[ 1 ] ) {
-        return await sendMessage( msg.chat.id, `El campeonato para el juego #${gameId} aún no ha terminado (rango: #${range[0]} a #${range[1]}).` )
+        return await sendMessage( msg.chat.id, `El campeonato para el juego #${gameIdNum} aún no ha terminado (rango: #${range[0]} a #${range[1]}).` )
     }
 
-    const player = await getPlayer( userId )
+    const player = await findAuthorizedPlayerByIdentifier( playerIdentifier )
     if ( !player ) {
-        return await sendMessage( msg.chat.id, `No se ha encontrado al usuario con ID ${userId}.` )
+        return await sendMessage( msg.chat.id, `No se ha encontrado al usuario *${playerIdentifier}* (o no está autorizado).` )
     }
 
     const championshipData = await getChampionshipData( { date } )
@@ -51,5 +51,5 @@ export async function onRankingCommandHandler( msg: TelegramBot.Message ) {
 }
 
 async function sendInstructions(id: number) {
-    return await sendMessage(id, `❌ *Invalid command:*\n#ranking <userId> <gameId>`)
+    return await sendMessage(id, `❌ *Invalid command:*\n#ranking <gameId> <userId|name|avatar>`)
 }
