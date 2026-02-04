@@ -41,11 +41,11 @@ bot.onText( /\/mis_resultados/, async ( msg ) => {
 //
 // #ranking
 //
-bot.onText( /#ranking/, async ( msg ) => {
-    if( ADMIN_ID !== msg.chat.id ) return
-    const { championshipString } = await getChampionshipData()
-    await sendMessage( msg.chat.id, championshipString )
-} )
+// bot.onText( /#ranking/, async ( msg ) => {
+//     if( ADMIN_ID !== msg.chat.id ) return
+//     const { championshipString } = await getChampionshipData()
+//     await sendMessage( msg.chat.id, championshipString )
+// } )
 
 //
 // #send ranking
