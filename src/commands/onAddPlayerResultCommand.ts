@@ -22,7 +22,12 @@ export async function onAddPlayerResultCommandHandler(msg: TelegramBot.Message) 
         return await sendInstructions(msg.chat.id)
     }
 
-    const { groups: { gameId, playerIdentifier, attempts } } = nextMatch.value
+    const groups = nextMatch.value.groups
+    if ( !groups ) {
+        return await sendInstructions(msg.chat.id)
+    }
+
+    const { gameId, playerIdentifier, attempts } = groups
     
     const isRemove = attempts === 'remove'
     const gameIdNum = Number(gameId)
