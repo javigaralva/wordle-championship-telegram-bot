@@ -1,20 +1,12 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { sendMessage } from '../bot/sendMessage'
 import { ADMIN_ID } from '../config/config'
-import { getPlayer, removePlayerResult } from '../services/admin'
+import { findAuthorizedPlayerByIdentifier, removePlayerResult } from '../services/admin'
 import { setPlayerResult } from '../services/championship'
 import { attemptsToString, getNameWithAvatar } from '../services/gameUtilities'
 import { getScore } from '../services/score'
 
-type ParsedInput = {
-    gameId: number,
-    playerId: number,
-    attempts: number,
-    isValid: boolean,
-    isRemove: boolean,
-}
-
-export const onAddPlayerResultCommandRegex = /#add ((?<gameId>\d+) (?<playerId>\d+) (?<attempts>(\d+|remove)))/gm
+export const onAddPlayerResultCommandRegex = /#add\s+(?<gameId>\d+)\s+(?<playerIdentifier>.+)\s+(?<attempts>\d+|remove)/gm
 
 export async function onAddPlayerResultCommandHandler(msg: TelegramBot.Message) {
 
@@ -25,48 +17,39 @@ export async function onAddPlayerResultCommandHandler(msg: TelegramBot.Message) 
         return await sendInstructions(msg.chat.id)
     }
 
-    const { groups: { gameId, playerId, attempts } } = match.next().value
-    const parsedInput = parseInput({ gameId, playerId, attempts })
-
-    if (!parsedInput.isValid) {
+    const nextMatch = match.next()
+    if (nextMatch.done) {
         return await sendInstructions(msg.chat.id)
     }
 
-    const player = await getPlayer(playerId)
-    if (!player) {
-        return await sendMessage(msg.chat.id, `⚠️ El jugador con id *${playerId}* no existe.`)
+    const { groups: { gameId, playerIdentifier, attempts } } = nextMatch.value
+    
+    const isRemove = attempts === 'remove'
+    const gameIdNum = Number(gameId)
+    const attemptsNum = isRemove ? 0 : Number(attempts)
+
+    if (gameIdNum <= 0 || (!isRemove && attemptsNum < 0)) {
+        return await sendInstructions(msg.chat.id)
     }
 
-    if (parsedInput.isRemove) {
-        await removePlayerResult({ gameId, playerId })
-        await sendMessage(msg.chat.id, `✅ Resultado del jugador *${getNameWithAvatar(player)}* borrado para el juego *#${gameId}*`)
+    const player = await findAuthorizedPlayerByIdentifier(playerIdentifier)
+    if (!player) {
+        return await sendMessage(msg.chat.id, `⚠️ El jugador *${playerIdentifier}* no existe o no está autorizado.`)
+    }
+
+    const playerId = player.id
+
+    if (isRemove) {
+        await removePlayerResult({ gameId: gameIdNum, playerId })
+        await sendMessage(msg.chat.id, `✅ Resultado del jugador *${getNameWithAvatar(player)}* borrado para el juego *#${gameIdNum}*`)
     }
     else {
-        await setPlayerResult({ gameId, playerId, attempts })
-        const score = await getScore(attempts)
-        await sendMessage(msg.chat.id, `✅ Resultado del jugador *${getNameWithAvatar(player)}* de *${attemptsToString(attempts)}/6* para el juego *#${gameId}* ha sido registrado.* Ha obtenido ${score} puntos*.`)
+        await setPlayerResult({ gameId: gameIdNum, playerId, attempts: attemptsNum })
+        const score = await getScore(attemptsNum)
+        await sendMessage(msg.chat.id, `✅ Resultado del jugador *${getNameWithAvatar(player)}* de *${attemptsToString(attemptsNum)}/6* para el juego *#${gameIdNum}* ha sido registrado.* Ha obtenido ${score} puntos*.`)
     }
 }
 
 async function sendInstructions(id: number) {
-    return await sendMessage(id, `❌ *Invalid command:*\n#add <gameId> <playerId> <attempts>|remove`)
-}
-
-function parseInput({ gameId, playerId, attempts }: any): ParsedInput {
-    const isValid = isCommandValid({ gameId, playerId, attempts })
-    return {
-        isValid,
-        isRemove: attempts === 'remove',
-        gameId: Number(gameId),
-        playerId: Number(playerId),
-        attempts: parseInt(attempts),
-    }
-}
-
-function isCommandValid({ gameId, playerId, attempts }: any) {
-    return (
-        gameId > 0 &&
-        playerId > 0 &&
-        (attempts >= 0 || attempts === 'remove')
-    )
+    return await sendMessage(id, `❌ *Invalid command:*\n#add <gameId> <playerId|name|avatar> <attempts>|remove`)
 }
