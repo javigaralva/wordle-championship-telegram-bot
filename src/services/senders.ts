@@ -4,6 +4,7 @@ import { bot } from '../bot/bot'
 import { sendMessage } from '../bot/sendMessage'
 import { findWordByGameId } from '../repository/repository'
 import { getGoogleDefinitionsAndExamplesFor } from './googleDefinitions'
+import { IPlayer } from '../models/Player'
 
 export async function sendChampionshipReportTo( todaysGameId: number, playerId: number, silent = false ) {
     const { championshipString } = await getChampionshipDataForPlayerId({ playerId })
@@ -98,54 +99,68 @@ function sample<T>(array: T[]) {
     return array[ Math.floor( Math.random() * array.length ) ]
 }
 
+export function getEndOfChampionshipMessageForPlayer( { player, championshipRanking, championshipString }: { player: IPlayer, championshipRanking: ChampionshipData['championshipRanking'], championshipString: string } ) {
+    const numOfPlayers = championshipRanking.length
+    const playerPosition = championshipRanking.findIndex( playerFinalScore => playerFinalScore.player.id === player.id ) + 1
+
+    let animationId: string
+    let playerPositionText
+    if( playerPosition === 1 ) {
+        playerPositionText =
+            `*¡Enhorabuena, ${getNameWithAvatar( player )}!*\n` +
+            `¡Has ganado el campeonato 🏆🏆🏆🏆!`
+        animationId = sample( END_OF_CHAMPIONSHIP_STICKERS.POSITION_1 )
+    }
+    else if( playerPosition === 2 ) {
+        playerPositionText =
+            `*¡Muy bien, ${getNameWithAvatar( player )}!*\n` +
+            `¡Has quedado en segunda posición en el campeonato!`
+        animationId = sample( END_OF_CHAMPIONSHIP_STICKERS.POSITION_2 )
+    }
+    else if( playerPosition === 3 ) {
+        playerPositionText =
+            `*¡Bien jugado, ${getNameWithAvatar( player )}!*\n` +
+            `¡Has quedado en tercera posición en el campeonato!`
+        animationId = sample( END_OF_CHAMPIONSHIP_STICKERS.POSITION_3 )
+    }
+    else if( playerPosition > 0 && playerPosition < numOfPlayers ) {
+        playerPositionText =
+            `*¡${getNameWithAvatar( player )}, el campeonato de esta semana ha terminado!*\n` +
+            `Has quedado en posición ${playerPosition} de ${numOfPlayers} participantes.`
+        animationId = sample( END_OF_CHAMPIONSHIP_STICKERS.POSITION_IN_THE_MIDDLE )
+    }
+    else if( playerPosition === numOfPlayers ) {
+        playerPositionText =
+            `*¡${getNameWithAvatar( player )}, el campeonato de esta semana ha terminado!*\n` +
+            `Has quedado último pero no tires la toalla. ¡Pronto empieza el siguiente campeonato!.`
+        animationId = sample( END_OF_CHAMPIONSHIP_STICKERS.POSITION_LAST )
+    }
+    else {
+        playerPositionText =
+            `*¡${getNameWithAvatar( player )}, el campeonato de esta semana ha terminado!*\n` +
+            `No has participado en este campeonato.`
+        animationId = sample( END_OF_CHAMPIONSHIP_STICKERS.POSITION_IN_THE_MIDDLE )
+    }
+
+    const finalText =
+        `El campeonato ha finalizado. Estos son los resultados: \n\n` +
+        `${championshipString}\n\n` +
+        `${playerPositionText}\n\n` +
+        `¡Te esperamos en el próximo campeonato!`
+    
+    return {
+        message: finalText,
+        animationId
+    }
+}
+
 export async function sendEndOfChampionshipMessage( silent = false, championshipData?: ChampionshipData ) {
     championshipData ??= await getChampionshipData()
     const { championshipRanking, championshipString, championshipPlayers } = championshipData
 
-    const numOfPlayers = championshipRanking.length
-
     for( const player of championshipPlayers ) {
-        const playerPosition = championshipRanking.findIndex( playerFinalScore => playerFinalScore.player.id === player.id ) + 1
-
-        let animationId: string
-        let playerPositionText
-        if( playerPosition === 1 ) {
-            playerPositionText =
-                `*¡Enhorabuena, ${getNameWithAvatar( player )}!*\n` +
-                `¡Has ganado el campeonato 🏆🏆🏆🏆!`
-            animationId = sample( END_OF_CHAMPIONSHIP_STICKERS.POSITION_1 )
-        }
-        else if( playerPosition === 2 ) {
-            playerPositionText =
-                `*¡Muy bien, ${getNameWithAvatar( player )}!*\n` +
-                `¡Has quedado en segunda posición en el campeonato!`
-            animationId = sample( END_OF_CHAMPIONSHIP_STICKERS.POSITION_2 )
-        }
-        else if( playerPosition === 3 ) {
-            playerPositionText =
-                `*¡Bien jugado, ${getNameWithAvatar( player )}!*\n` +
-                `¡Has quedado en tercera posición en el campeonato!`
-            animationId = sample( END_OF_CHAMPIONSHIP_STICKERS.POSITION_3 )
-        }
-        else if( playerPosition < numOfPlayers ) {
-            playerPositionText =
-                `*¡${getNameWithAvatar( player )}, el campeonato de esta semana ha terminado!*\n` +
-                `Has quedado en posición ${playerPosition} de ${numOfPlayers} participantes.`
-            animationId = sample( END_OF_CHAMPIONSHIP_STICKERS.POSITION_IN_THE_MIDDLE )
-        }
-        else {
-            playerPositionText =
-                `*¡${getNameWithAvatar( player )}, el campeonato de esta semana ha terminado!*\n` +
-                `Has quedado último pero no tires la toalla. ¡Pronto empieza el siguiente campeonato!.`
-            animationId = sample( END_OF_CHAMPIONSHIP_STICKERS.POSITION_LAST )
-        }
-
-        const finalText =
-            `El campeonato ha finalizado. Estos son los resultados: \n\n` +
-            `${championshipString}\n\n` +
-            `${playerPositionText}\n\n` +
-            `¡Te esperamos en el próximo campeonato!`
-        await sendMessage( player.id, finalText, silent )
+        const { message, animationId } = getEndOfChampionshipMessageForPlayer( { player, championshipRanking, championshipString } )
+        await sendMessage( player.id, message, silent )
         await bot.sendAnimation( player.id, animationId, { disable_notification: silent } )
     }
 }

@@ -45,14 +45,16 @@ export function setPlayerResult( playerResult: IPlayerResult ) {
 
 export async function getChampionshipData({ 
     championshipResults, 
+    date = new Date(),
 }: { 
     championshipResults?: IPlayerResult[], 
+    date?: Date,
 } = {}): Promise<ChampionshipData> {
-    championshipResults ??= await getChampionshipResults()
+    championshipResults ??= await getChampionshipResults( date )
     const championshipPlayers = await getChampionshipPlayers( championshipResults )
-    const championshipWords = await getChampionshipWords()
+    const championshipWords = await getChampionshipWords( date )
 
-    const championshipResultsByGameString = await getChampionshipResultsByGameToString( { championshipResults, championshipWords } )
+    const championshipResultsByGameString = await getChampionshipResultsByGameToString( { championshipResults, championshipWords, date } )
     const championshipRanking = getChampionshipRanking( { championshipResults, championshipPlayers } )
     const championshipRankingString = getChampionshipRankingToString( championshipRanking )
 
@@ -77,21 +79,23 @@ export async function getChampionshipData({
 
 export async function getChampionshipDataForPlayerId( { 
     championshipResults, 
-    playerId 
+    playerId,
+    date = new Date(),
 }: { 
     championshipResults?: IPlayerResult[], 
-    playerId: number 
+    playerId: number,
+    date?: Date,
 } ): Promise<ChampionshipData> {
-    championshipResults ??= await getChampionshipResults()
+    championshipResults ??= await getChampionshipResults( date )
 
     const filteredChampionshipResults = filterChampionshipResultsByPlayerId({ championshipResults, playerId })
       
     const championshipPlayers = await getChampionshipPlayers( filteredChampionshipResults )
-    const championshipWords = await getChampionshipWords()
+    const championshipWords = await getChampionshipWords( date )
 
     const championshipResultsByGameString = await getChampionshipResultsByGameForPlayerIdToString( { 
         championshipResults: filteredChampionshipResults, 
-        championshipWords, playerId 
+        championshipWords, playerId, date
     } )
     const championshipRanking = getChampionshipRankingByPlayerId( { 
         championshipResults: filteredChampionshipResults, 
@@ -129,8 +133,8 @@ export async function getChampionshipPlayers( championshipResults?: IPlayerResul
     return players
 }
 
-export async function getChampionshipWords() {
-    const gameIdsRange = getChampionshipGameIdsRangeFromDate()
+export async function getChampionshipWords( date?: Date ) {
+    const gameIdsRange = getChampionshipGameIdsRangeFromDate( date )
     const words = await Repository.findWordsInRange( gameIdsRange )
     return words
 }
@@ -139,21 +143,23 @@ export async function getWordByGameId( gameId: number ) {
     return Repository.findWordByGameId( gameId )
 }
 
-export async function getChampionshipResults() {
-    const gameIdsRange = getChampionshipGameIdsRangeFromDate()
+export async function getChampionshipResults( date?: Date ) {
+    const gameIdsRange = getChampionshipGameIdsRangeFromDate( date )
     const championshipResults: IPlayerResult[] = await Repository.findPlayersResultsIn( gameIdsRange )
     return championshipResults
 }
 
 export async function getChampionshipResultsByGameToString( { 
     championshipResults, 
-    championshipWords 
+    championshipWords,
+    date = new Date(),
 }: { 
     championshipResults: IPlayerResult[], 
-    championshipWords: IWord[] 
+    championshipWords: IWord[],
+    date?: Date,
 } ) {
     const players = await Repository.getPlayers()
-    const gameIdsRange = getChampionshipGameIdsRangeFromDate()
+    const gameIdsRange = getChampionshipGameIdsRangeFromDate( date )
     const currentGameId = getTodaysGameId()
 
     let text = ''
@@ -233,13 +239,15 @@ export async function getChampionshipResultsByGameForPlayerIdToString({
     championshipResults, 
     championshipWords,
     playerId,
+    date = new Date(),
 }: { 
     championshipResults: IPlayerResult[], 
     championshipWords: IWord[] 
     playerId: number,
+    date?: Date,
 }) {
     const players = await Repository.getPlayers()
-    const gameIdsRange = getChampionshipGameIdsRangeFromDate()
+    const gameIdsRange = getChampionshipGameIdsRangeFromDate( date )
     const currentGameId = getTodaysGameId()
 
     let text = ''

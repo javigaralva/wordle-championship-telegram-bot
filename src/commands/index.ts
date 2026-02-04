@@ -15,8 +15,9 @@ import { onDanceCommandHandler, onDanceCommandRegex } from './easterEggs/onDance
 import { onWinnerCommandHandler, onWinnerCommandRegex } from './easterEggs/onWinnerCommand'
 
 import { onZumbaCommandHandler, onZumbaCommandRegex } from './extras/onZumbaCommand'
+import { onRankingCommandHandler, onRankingCommandRegex as onRankingCommandRegex } from './onRankingCommand'
 
-import { ALL_PLAYERS_IDS } from '../config/config'
+import { ALL_PLAYERS_IDS, ADMIN_ID } from '../config/config'
 
 type CommandHandler = ( msg: TelegramBot.Message ) => Promise<TelegramBot.Message | undefined | void>
 
@@ -24,6 +25,15 @@ const auth = ( handler: CommandHandler ) => async ( msg: TelegramBot.Message ) =
     const isAuthorized = ALL_PLAYERS_IDS.includes( msg.chat.id )
     if( !isAuthorized ) {
         return console.log( `Unauthorized user (${JSON.stringify( msg.chat )}) tried to execute command ${msg.text}` )
+    }
+
+    return handler( msg )
+}
+
+const adminAuth = ( handler: CommandHandler ) => async ( msg: TelegramBot.Message ) => {
+    const isAdmin = msg.chat.id === ADMIN_ID
+    if( !isAdmin ) {
+        return console.log( `Non-admin user (${JSON.stringify( msg.chat )}) tried to execute admin command ${msg.text}` )
     }
 
     return handler( msg )
@@ -85,5 +95,10 @@ export const Commands = {
     Zumba: {
         handler: auth(onZumbaCommandHandler),
         regex: onZumbaCommandRegex
+    },
+
+    Ranking: {
+        handler: adminAuth( onRankingCommandHandler ),
+        regex: onRankingCommandRegex
     }
 }
